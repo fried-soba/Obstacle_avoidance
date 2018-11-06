@@ -69,7 +69,7 @@ bool Player::checkHit(float human_x, float human_y) {
 //ƒS[ƒ‹”»’è
 void Player::checkGoal(int goal_x, int goal_y)
 {
-	if (abs(goal_x - x) < 1 && abs(y - goal_y) < 1) {
+	if (abs(goal_x - (int)x) < 1 && abs((int)y - goal_y) < 1) {
 		hitStatus = true;
 		stop();
 		color = GetColor(0, 255, 255);
