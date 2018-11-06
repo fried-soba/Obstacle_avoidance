@@ -1,21 +1,17 @@
 #include "TitleScene.h"
 #include <DxLib.h>
 #include "GameScene.h"
-#include "Define.h"
-#include "AI.h"
 #include <time.h>
-#define NUM 1
 
 TitleScene::TitleScene(IOnSceneChangedListener* impl, const Parameter& parameter) : AbstractScene(impl, parameter)
 {
-	//SRand((unsigned int)time(NULL));	//Rand()のseed値をランダム化
-	extern Grid **g_grid;					//AI.cppの大域で定義
+	SRand((unsigned int)time(NULL));	//Rand()のseed値をランダム化
 	for (int cnt = 0; cnt < Define::WIN_W; cnt++) {
-		g_grid[cnt] = new Grid[Define::WIN_H];
+		_grid[cnt] = new Grid[Define::WIN_H];
 	}
 
 	//検査用にノードオープン
-	g_grid[1][1].status = true;
+	_grid[1][1].status = true;
 }
 
 void TitleScene::update()
@@ -35,45 +31,26 @@ void TitleScene::update()
         _implSceneChanged->onSceneChanged(eScene::Game, parameter, stackClear);
         return;
     }
-	if (CheckHitKey(KEY_INPUT_H)) {
-		Parameter parameter;
-		parameter.set(GameScene::ParameterTagLevel, Define::eLevel::Hard);
-		const bool stackClear = false;
-		_implSceneChanged->onSceneChanged(eScene::Game, parameter, stackClear);
-		return;
-	}
-	if (CheckHitKey(KEY_INPUT_L)) {
-		Parameter parameter;
-		parameter.set(GameScene::ParameterTagLevel, Define::eLevel::Lunatic);
-		const bool stackClear = false;
-		_implSceneChanged->onSceneChanged(eScene::Game, parameter, stackClear);
-		return;
-	}
 	*/
+	_player.update(&_goal);
+	for (int cnt = 0; cnt < NUM; cnt++) {
+		_human[cnt].update();
+		if (_human[cnt].outside == true) {
+			_human[cnt].reset();
+		}
+		if (_player.checkHit(_human[cnt].x, _human[cnt].y)) {
+			_player.stop();
+			_human[cnt].stop();
+		}
+	}
 	
 }
 
 void TitleScene::draw() {
-	static Human human[NUM];
-	static Player player;
-	extern Grid **g_grid;
-	extern Goal g_goal;
-	player.update();
+	_goal.draw();
+	_player.draw();
 	for (int cnt = 0; cnt < NUM; cnt++) {
-		human[cnt].update();
-		if (human[cnt].outside == true) {
-			human[cnt].reset();
-		}
-		if (player.checkHit(human[cnt].x, human[cnt].y)) {
-			player.stop();
-			human[cnt].stop();
-		}
-	}
-	player.checkGoal(g_goal.x, g_goal.y);
-	g_goal.draw();
-	player.draw();
-	for (int cnt = 0; cnt < NUM; cnt++) {
-		human[cnt].draw();
+		_human[cnt].draw();
 	}
 	//DrawFormatString(100, 60, GetColor(255, 255, 255), "%d", grid[1][1].status);	//ノード開閉検査用
 

@@ -9,7 +9,7 @@ void Mover::stop() {
 }
 Player::Player() {
 	radius = 20;
-	speed = 2;
+	speed = 1;
 	/*
 	ランダム出現
 	x = (float)radius + GetRand(Define::WIN_W - 2 * radius);
@@ -21,14 +21,14 @@ Player::Player() {
 	xSpeed = (float)speed * cosf(angle);
 	ySpeed = (float)speed * sinf(angle);
 	color = GetColor(255, 255, 255);
+	hitStatus = false;
 }
-void Player::update() {
+void Player::update(Goal *goal) {
 	//停止済みのときは更新しない
 	if (hitStatus)
 		return;
-	extern Goal g_goal;
-	checkGoal(g_goal.x, g_goal.y);
-	float degree = 180/Define::PI*atanf((g_goal.y - y) / (g_goal.x - x));
+	checkGoal((*goal).x, (*goal).y);
+	float degree = 180/Define::PI*atanf(((*goal).y - y) / ((*goal).x - x));
 	if (degree > 90)
 		degree += 180;
 	
@@ -69,9 +69,9 @@ bool Player::checkHit(float human_x, float human_y) {
 //ゴール判定
 void Player::checkGoal(int goal_x, int goal_y)
 {
-	if (abs(goal_x - (int)x) < 1 && abs(goal_y - (int)y) < 1) {
-		hitStatus = true;
+	if (abs(goal_x - (int)x) < 2 && abs(goal_y - (int)y) < 2) {
 		stop();
+		hitStatus = true;
 		color = GetColor(0, 255, 255);
 	}
 }

@@ -6,6 +6,14 @@ DirectXによって単精度に変えられてしまうためdouble型は使用しない
 浮動小数点を使うときはfloat型を使う
 */
 
+class Goal {
+public:
+	int x, y;
+	int size;
+	Goal();
+	void draw();
+};
+
 class Mover {
 public:
 	int radius,	//半径
@@ -24,7 +32,7 @@ private:
 	int red, green, blue;
 public:
 	Player();
-	void update();
+	void update(Goal *goal);
 	void draw();
 	bool checkHit(float x, float y);
 	void checkGoal(int g_x, int g_y);
@@ -61,10 +69,3 @@ public:
 	
 };
 
-class Goal {
-public:
-	int x, y;
-	int size;
-	Goal();
-	void draw();
-};
