@@ -20,7 +20,7 @@ void GameScene::update()
 	}
 }
 
-void GameScene::draw() const
+void GameScene::draw() 
 {
 	static int r = 255, g = 255, b = 255;
 	static int timer = 0;

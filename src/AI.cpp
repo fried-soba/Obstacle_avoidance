@@ -9,7 +9,7 @@ void Mover::stop() {
 }
 Player::Player() {
 	radius = 20;
-	speed = 1;
+	speed = 2;
 	/*
 	ƒ‰ƒ“ƒ_ƒ€oŒ»
 	x = (float)radius + GetRand(Define::WIN_W - 2 * radius);
@@ -69,7 +69,7 @@ bool Player::checkHit(float human_x, float human_y) {
 //ƒS[ƒ‹”»’è
 void Player::checkGoal(int goal_x, int goal_y)
 {
-	if (abs(goal_x - (int)x) < 1 && abs((int)y - goal_y) < 1) {
+	if (abs(goal_x - (int)x) < 1 && abs(goal_y - (int)y) < 1) {
 		hitStatus = true;
 		stop();
 		color = GetColor(0, 255, 255);

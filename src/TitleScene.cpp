@@ -53,7 +53,7 @@ void TitleScene::update()
 	
 }
 
-void TitleScene::draw() const {
+void TitleScene::draw() {
 	static Human human[NUM];
 	static Player player;
 	extern Grid **g_grid;
@@ -69,7 +69,7 @@ void TitleScene::draw() const {
 			human[cnt].stop();
 		}
 	}
-
+	player.checkGoal(g_goal.x, g_goal.y);
 	g_goal.draw();
 	player.draw();
 	for (int cnt = 0; cnt < NUM; cnt++) {

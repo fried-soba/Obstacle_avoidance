@@ -12,7 +12,7 @@ public:
     virtual ~GameScene() = default;
 
     void update() override;
-    void draw() const override;
+    void draw() ;
 
 private:
     int _level;
