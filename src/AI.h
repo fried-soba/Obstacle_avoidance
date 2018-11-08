@@ -36,6 +36,7 @@ public:
 	void draw();
 	bool checkHit(float x, float y);
 	void checkGoal(int g_x, int g_y);
+	int distance(Goal *goal);
 };
 
 class Human :public Mover {

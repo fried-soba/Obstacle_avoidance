@@ -66,7 +66,7 @@ bool Player::checkHit(float human_x, float human_y) {
 	
 }
 
-//ゴール判定
+//ゴール判定:座標がほぼ重なったらゴール
 void Player::checkGoal(int goal_x, int goal_y)
 {
 	if (abs(goal_x - (int)x) < 2 && abs(goal_y - (int)y) < 2) {
@@ -74,6 +74,14 @@ void Player::checkGoal(int goal_x, int goal_y)
 		hitStatus = true;
 		color = GetColor(0, 255, 255);
 	}
+}
+
+//推定コスト算出に使用
+int Player::distance(Goal * goal)
+{
+	float distance;
+	distance = sqrt(pow(x - (float)(*goal).x, 2.0) + pow(y - (float)(*goal).y, 2.0));
+	return (int)distance;
 }
 
 
@@ -138,6 +146,6 @@ Goal::Goal() {
 }
 
 void Goal::draw() {
-	//四角の中央がゴール座標となるように描いている
+	//ゴール座標の周囲を四角で描画
 	DrawBox(x - size / 2, y - size / 2, x + size / 2, y + size / 2, GetColor(255, 255, 255), TRUE);
 }
