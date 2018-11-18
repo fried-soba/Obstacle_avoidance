@@ -27,6 +27,8 @@ void Player::update(Goal *goal) {
 	//停止済みのときは更新しない
 	if (hitStatus)
 		return;
+
+	//ゴールに向けて一直線で動く仮の処理（A*実装後は不要）
 	checkGoal((*goal).x, (*goal).y);
 	float degree = 180/Define::PI*atanf(((*goal).y - y) / ((*goal).x - x));
 	if (degree > 90)
@@ -76,11 +78,11 @@ void Player::checkGoal(int goal_x, int goal_y)
 	}
 }
 
-//推定コスト算出に使用
+//正確な距離算出に使用
 int Player::distance(Goal * goal)
 {
 	float distance;
-	distance = sqrt(pow(x - (float)(*goal).x, 2.0) + pow(y - (float)(*goal).y, 2.0));
+	distance = sqrtf(powf(x - (float)(*goal).x, 2.0) + powf(y - (float)(*goal).y, 2.0));
 	return (int)distance;
 }
 
@@ -128,14 +130,6 @@ void Human::draw() {
 
 void Human::exorbitant(){
 	outside = true;
-}
-
-Grid::Grid() { 
-	status = false;
-}
-Grid::Grid(int x,int y) {
-	//x=
-	parent = nullptr;
 }
 
 

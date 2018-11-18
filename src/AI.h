@@ -32,6 +32,7 @@ private:
 	int red, green, blue;
 public:
 	Player();
+	~Player() = default;
 	void update(Goal *goal);
 	void draw();
 	bool checkHit(float x, float y);
@@ -55,18 +56,5 @@ public:
 	//To do:人同士がぶつからないように判定する関数を作る
 };
 
-//フィールドのステータス
-class Grid {
-public:
-	int x, y;
-	int size;
-	bool status;			//ノードの開閉状態
-	int actualCost;			//実コスト
-	int heuristicCost;		//推定コスト
-	Grid *parent;			//親ノードのポインタ
-	Grid();
-	Grid(int x,int y);
-	//~Grid();
-	
-};
+
 
