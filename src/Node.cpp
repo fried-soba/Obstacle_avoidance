@@ -40,6 +40,11 @@ void NodeManager::open(Node node){
 	openList.push(node);
 }
 
+void NodeManager::close(Node node){
+	openList.pop();
+	closeList.push(node);
+}
+
 void NodeManager::clear(priority_queue<Node, vector<Node>, greater<Node>> list){
 	while (!list.empty()){
 		list.pop();

@@ -3,7 +3,7 @@
 #include "GameScene.h"
 #include <time.h>
 
-//txtへの書き出し用
+//txtへの書き出し用	//最終的には不要にする
 #include <fstream>
 
 TitleScene::TitleScene(IOnSceneChangedListener* impl, const Parameter& parameter) : AbstractScene(impl, parameter)
@@ -23,14 +23,15 @@ TitleScene::TitleScene(IOnSceneChangedListener* impl, const Parameter& parameter
 	}
 	
 	//スタートノードの周辺9マスを全てopenリストに入れてpopされる順序を見てみたい
+	/*
 	int baseX = (int)_player.x, baseY = (int)_player.y;
 	for (int i = 0; i < 3; i++) {
 		for (int j = 0; j < 3; j++) {
-			nodeMgr.open(_grid[(int)_player.y - 1 + i][(int)_player.x - 1 + j]);
+			nodeMgr.open(_grid[(int)_player.y - 1 + j][(int)_player.x - 1 + i]);
 		}
 	}
-	
-	nodeMgr.open(_grid[(int)_player.x][(int)_player.y]);
+	printfDx("ノード数は%d個です\n", nodeMgr.openList.size());
+	*/
 }
 
 void TitleScene::update()
@@ -52,22 +53,6 @@ void TitleScene::update()
     }
 	*/
 
-	//オープンリストの中身をtxtファイルへ書き出し
-	if (CheckHitKey(KEY_INPUT_W)) {
-		ofstream outputfile("PopResult.txt");
-		
-		while (!nodeMgr.openList.empty()) {
-			outputfile << "("<<nodeMgr.openList.top().x<<","<< nodeMgr.openList.top().y<<") "
-				<<"のコストは"<< nodeMgr.openList.top().distance;
-			//nodeMgr.openList.pop();
-			break;
-		}
-		
-		outputfile.close();
-	}
-	
-
-
 	for (int cnt = 0; cnt < NUM; cnt++) {
 		_human[cnt].update();
 		if (_human[cnt].outside == true) {
@@ -82,6 +67,22 @@ void TitleScene::update()
 	//経路探索で動くようになればここは不要
 	_player.update(&_goal);
 
+	//オープンリスト中のノードをtxtファイルへ書き出し
+	if (CheckHitKey(KEY_INPUT_W)) {
+		/*
+		ofstream outputfile("PopResult.txt");
+		outputfile << "コストの昇順でオープンリストをpushします\n";
+		outputfile << nodeMgr.openList.size() << "個のノードがあります\n";
+		while (!nodeMgr.openList.empty()) {
+			outputfile << "(" << nodeMgr.openList.top().x << "," << nodeMgr.openList.top().y << ") "
+				<< "のコストは" << nodeMgr.openList.top().distance << "\n";
+			nodeMgr.close(nodeMgr.openList.top());
+		}
+		outputfile.close();
+		*/
+		printfDx("ノード数は%d個です\n", nodeMgr.openList.size());
+	}
+
 }
 
 void TitleScene::draw() {
@@ -92,8 +93,8 @@ void TitleScene::draw() {
 	}
 	//DrawFormatString(100, 40, GetColor(255, 255, 255), "%d", _grid[1][1].status);	//ノード開閉検査用
 	DrawFormatString(100, 80, GetColor(255, 255, 255), "距離：%d x:%.1f y:%.1f", _player.distance(&_goal),_player.x,_player.y);	//ゴールまでの距離と現在地
-	static int tmp;
-	tmp = (int)nodeMgr.openList.top().score;
-	DrawFormatString(100, 120, GetColor(255, 255, 255), "Sノードの合計コスト:%d", tmp);
+	//const static int tmp;
+	//tmp = (int)nodeMgr.openList.top().score;
+	//DrawFormatString(100, 120, GetColor(255, 255, 255), "Sノードの合計コスト:%d", tmp);
 	
 }

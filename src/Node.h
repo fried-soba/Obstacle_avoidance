@@ -26,6 +26,7 @@ public:
 	~NodeManager() = default;
 	
 	void open(Node node);
+	void close(Node node);
 	void clear(priority_queue<Node, vector<Node>, greater<Node>> list);
 //private:
 	priority_queue<Node, vector<Node>, greater<Node>> openList, closeList;	//ノードを格納する優先度付きキュー、ソートは昇順
