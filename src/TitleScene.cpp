@@ -32,6 +32,7 @@ TitleScene::TitleScene(IOnSceneChangedListener* impl, const Parameter& parameter
 	}
 	printfDx("ノード数は%d個です\n", nodeMgr.openList.size());
 	*/
+	nodeMgr.search(_grid[(int)_player.y][(int)_player.x]);
 }
 
 void TitleScene::update()
@@ -69,17 +70,17 @@ void TitleScene::update()
 
 	//オープンリスト中のノードをtxtファイルへ書き出し
 	if (CheckHitKey(KEY_INPUT_W)) {
-		/*
-		ofstream outputfile("PopResult.txt");
-		outputfile << "コストの昇順でオープンリストをpushします\n";
-		outputfile << nodeMgr.openList.size() << "個のノードがあります\n";
-		while (!nodeMgr.openList.empty()) {
-			outputfile << "(" << nodeMgr.openList.top().x << "," << nodeMgr.openList.top().y << ") "
-				<< "のコストは" << nodeMgr.openList.top().distance << "\n";
-			nodeMgr.close(nodeMgr.openList.top());
+		if (!nodeMgr.openList.empty()) {
+			ofstream outputfile("PopResult.txt");
+			outputfile << "コストの昇順でオープンリストをpushします\n";
+			outputfile << nodeMgr.openList.size() << "個のノードがあります\n";
+			while (!nodeMgr.openList.empty()) {
+				outputfile << "(" << nodeMgr.openList.top().x << "," << nodeMgr.openList.top().y << ") "
+					<< "のコストは" << nodeMgr.openList.top().distance << "\n";
+				nodeMgr.output(nodeMgr.openList.top());
+			}
+			outputfile.close();
 		}
-		outputfile.close();
-		*/
 		printfDx("ノード数は%d個です\n", nodeMgr.openList.size());
 	}
 
