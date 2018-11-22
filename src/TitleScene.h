@@ -16,7 +16,6 @@ public:
 
 	Player _player;
 	Human _human[NUM];
-	Node **_grid = new Node*[Define::WIN_H];
 	Goal _goal;
 	NodeManager nodeMgr;
 };

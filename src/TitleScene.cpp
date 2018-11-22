@@ -4,23 +4,13 @@
 #include <time.h>
 
 //txtへの書き出し用	//最終的には不要にする
-#include <fstream>
+#include <stdio.h>
+#include <stdlib.h>
 
 TitleScene::TitleScene(IOnSceneChangedListener* impl, const Parameter& parameter) : AbstractScene(impl, parameter)
 {
 	SRand((unsigned int)time(NULL));	//Rand()のseed値をランダム化
-	for (int cnt = 0; cnt < Define::WIN_H; cnt++) {
-		_grid[cnt] = new Node[Define::WIN_W];
-	}
-
-	//グリッドに座標を指定しゴール地点までの距離を計算
-	for (int height = 0; height < Define::WIN_H; height++) {
-		for (int width = 0; width < Define::WIN_W; width++) {
-			_grid[height][width].y = height;
-			_grid[height][width].x = width;
-			_grid[height][width].calcDistance(_goal);
-		}
-	}
+	nodeMgr.Initialize(_goal);
 	
 	//スタートノードの周辺9マスを全てopenリストに入れてpopされる順序を見てみたい
 	/*
@@ -32,7 +22,7 @@ TitleScene::TitleScene(IOnSceneChangedListener* impl, const Parameter& parameter
 	}
 	printfDx("ノード数は%d個です\n", nodeMgr.openList.size());
 	*/
-	nodeMgr.search(_grid[(int)_player.y][(int)_player.x]);
+	nodeMgr.search(nodeMgr.grid[(int)_player.y][(int)_player.x]);	//とりあえず確認用にスタートノード周辺を展開
 }
 
 void TitleScene::update()
@@ -70,20 +60,22 @@ void TitleScene::update()
 
 	//オープンリスト中のノードをtxtファイルへ書き出し
 	if (CheckHitKey(KEY_INPUT_W)) {
+		printfDx("ノード数は%d個です\n", nodeMgr.openList.size());
 		if (!nodeMgr.openList.empty()) {
-			ofstream outputfile("PopResult.txt");
-			outputfile << "コストの昇順でオープンリストをpushします\n";
-			outputfile << nodeMgr.openList.size() << "個のノードがあります\n";
+			FILE* outputfile = fopen("PopResult.txt", "w");
+			if (outputfile == NULL) {
+				printfDx("ファイルが使用中です。\n");
+				exit(1);
+			}
+			fprintf(outputfile,"コストの昇順でオープンリストをpushします\n");
+			fprintf(outputfile, "%d個のノードがあります。\n", nodeMgr.openList.size());
 			while (!nodeMgr.openList.empty()) {
-				outputfile << "(" << nodeMgr.openList.top().x << "," << nodeMgr.openList.top().y << ") "
-					<< "のコストは" << nodeMgr.openList.top().distance << "\n";
+				fprintf(outputfile, "(%3d,%3d)のコストは%fです\n", nodeMgr.openList.top().x, nodeMgr.openList.top().y, nodeMgr.openList.top().score);
 				nodeMgr.output(nodeMgr.openList.top());
 			}
-			outputfile.close();
+			fclose(outputfile);
 		}
-		printfDx("ノード数は%d個です\n", nodeMgr.openList.size());
 	}
-
 }
 
 void TitleScene::draw() {
