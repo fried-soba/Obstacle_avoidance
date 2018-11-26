@@ -22,7 +22,7 @@ TitleScene::TitleScene(IOnSceneChangedListener* impl, const Parameter& parameter
 	}
 	printfDx("ノード数は%d個です\n", nodeMgr.openList.size());
 	*/
-	nodeMgr.search(nodeMgr.grid[(int)_player.y][(int)_player.x]);	//とりあえず確認用にスタートノード周辺を展開
+	Node first = nodeMgr.search(nodeMgr.grid[(int)_player.y][(int)_player.x]);	//とりあえず確認用にスタートノード周辺を展開
 }
 
 void TitleScene::update()

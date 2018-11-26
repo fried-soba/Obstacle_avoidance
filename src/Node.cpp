@@ -47,6 +47,7 @@ bool Node::IsNone(){
 }
 
 NodeManager::NodeManager() {}
+
 void NodeManager::Initialize(Goal goal){
 	//Nodeの領域を動的生成
 	for (int cnt = 0; cnt < Define::WIN_H; cnt++) {
@@ -61,6 +62,9 @@ void NodeManager::Initialize(Goal goal){
 			grid[height][width].calcDistance(goal.x,goal.y);
 		}
 	}
+
+	goal_x = goal.x;
+	goal_y = goal.y;
 }
 
 Node NodeManager::search(Node node){
@@ -99,7 +103,12 @@ Node NodeManager::search(Node node){
 
 	closeList.push(node);	//親ノードはクローズリストへ格納
 	node.s_Close();
-	return openList.top();	//オープンリスト中で合計コストの最小ノードを返す
+	if (goal_x == openList.top().x && openList.top().y == goal_y) {
+		get_goal = true;
+		printfDx("ゴール地点が見つかりました\n");
+		return openList.top();
+	}
+	return search(openList.top());	//オープンリスト中で合計コストの最小ノードを返す
 	//再帰的に書けばゴール地点にたどり着くまで探索を続けられる
 }
 

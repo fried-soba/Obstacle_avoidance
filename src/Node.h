@@ -37,6 +37,7 @@ public:
 	void Initialize(Goal goal);
 	~NodeManager() = default;
 	int goal_x, goal_y;
+	int get_goal = false;
 
 	Node search(Node node);
 	void output(Node node);
