@@ -34,12 +34,12 @@ public:
 class NodeManager{
 public:
 	NodeManager();
-	void Initialize(Goal goal);
+	void Initialize(Player player, Goal goal);
 	~NodeManager() = default;
 	int goal_x, goal_y;
 	int get_goal = false;
 
-	Node search(Node node);
+	Node search(Node *node);
 	void output(Node node);
 	void clear(priority_queue<Node, vector<Node>, greater<Node>> list);
 //private:

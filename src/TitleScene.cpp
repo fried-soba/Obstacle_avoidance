@@ -7,22 +7,24 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+
 TitleScene::TitleScene(IOnSceneChangedListener* impl, const Parameter& parameter) : AbstractScene(impl, parameter)
 {
 	SRand((unsigned int)time(NULL));	//Rand()のseed値をランダム化
-	nodeMgr.Initialize(_goal);
-	
-	//スタートノードの周辺9マスを全てopenリストに入れてpopされる順序を見てみたい
-	/*
-	int baseX = (int)_player.x, baseY = (int)_player.y;
-	for (int i = 0; i < 3; i++) {
-		for (int j = 0; j < 3; j++) {
-			nodeMgr.open(_grid[(int)_player.y - 1 + j][(int)_player.x - 1 + i]);
-		}
-	}
-	printfDx("ノード数は%d個です\n", nodeMgr.openList.size());
-	*/
-	Node first = nodeMgr.search(nodeMgr.grid[(int)_player.y][(int)_player.x]);	//とりあえず確認用にスタートノード周辺を展開
+
+	_player.x = 100;
+	_player.y = 100;
+
+	nodeMgr.Initialize(_player,_goal);
+
+
+
+	//探索開始前にスタートノードをオープンリストへ
+	//nodeMgr.openList.push(nodeMgr.grid[(int)_player.y][(int)_player.x]);
+
+	Node first = nodeMgr.search(&nodeMgr.grid[(int)_player.y][(int)_player.x]);	//とりあえず確認用にスタートノード周辺を展開
+	Node second = nodeMgr.search(&first);
+	Node third = nodeMgr.search(&second);
 }
 
 void TitleScene::update()
