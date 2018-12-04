@@ -23,8 +23,8 @@ TitleScene::TitleScene(IOnSceneChangedListener* impl, const Parameter& parameter
 	//nodeMgr.openList.push(nodeMgr.grid[(int)_player.y][(int)_player.x]);
 
 	Node first = nodeMgr.search(&nodeMgr.grid[(int)_player.y][(int)_player.x]);	//とりあえず確認用にスタートノード周辺を展開
-	Node second = nodeMgr.search(&first);
-	Node third = nodeMgr.search(&second);
+	//Node second = nodeMgr.search(&first);
+	//Node third = nodeMgr.search(&second);
 }
 
 void TitleScene::update()
@@ -69,6 +69,7 @@ void TitleScene::update()
 				printfDx("ファイルが使用中です。\n");
 				exit(1);
 			}
+			fprintf(outputfile, "ゴール座標は(%4d,%4d)\n", _goal.x, _goal.y);
 			fprintf(outputfile,"コストの昇順でオープンリストをpushします\n");
 			fprintf(outputfile, "%d個のノードがあります。\n", nodeMgr.openList.size());
 			while (!nodeMgr.openList.empty()) {
@@ -85,6 +86,13 @@ void TitleScene::draw() {
 	_player.draw();
 	for (int cnt = 0; cnt < NUM; cnt++) {
 		_human[cnt].draw();
+	}
+	for (int cnt = 0; cnt < nodeMgr.root_array.size(); cnt++) {
+		int x1 = nodeMgr.root_array[cnt].x;
+		int y1 = nodeMgr.root_array[cnt].y;
+		int x2 = x1 + 1;
+		int y2 = y1 + 1;
+		DrawBox(x1, y1, x2, y2, GetColor(255, 255, 255), FALSE);
 	}
 	//DrawFormatString(100, 40, GetColor(255, 255, 255), "%d", _grid[1][1].status);	//ノード開閉検査用
 	DrawFormatString(100, 80, GetColor(255, 255, 255), "距離：%d x:%.1f y:%.1f", _player.distance(&_goal),_player.x,_player.y);	//ゴールまでの距離と現在地

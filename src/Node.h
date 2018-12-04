@@ -31,6 +31,12 @@ public:
 	bool IsNone();
 };
 
+//配列にして探索の完了したルートを格納する用の構造体
+typedef struct coordinates {
+	int x;
+	int y;
+} Root;
+
 class NodeManager{
 public:
 	NodeManager();
@@ -38,11 +44,12 @@ public:
 	~NodeManager() = default;
 	int goal_x, goal_y;
 	int get_goal = false;
-
 	Node search(Node *node);
+	void getPath(Node *goal);
 	void output(Node node);
 	void clear(priority_queue<Node, vector<Node>, greater<Node>> list);
 //private:
 	priority_queue<Node, vector<Node>, greater<Node>> openList, closeList;	//ノードを格納する優先度付きキュー、ソートは昇順
+	vector<Root> root_array;														//探索経路を格納する配列
 	Node **grid = new Node*[Define::WIN_H];
 };

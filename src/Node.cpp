@@ -18,7 +18,18 @@ Node::Node() {
 }
 
 void Node::calcDistance(int goal_x,int goal_y){
-	distance = sqrtf((float)(pow(x - goal_x, 2.0) + pow(y - goal_y, 2.0)));
+	//直線距離
+	//distance = sqrtf((float)(pow(x - goal_x, 2.0) + pow(y - goal_y, 2.0)));
+
+	//x軸,y軸の差の和をとってみる
+	//distance = fabsf(x - goal_x) + fabsf(y - goal_x);
+
+	//x軸,y軸の差のうち、大きい方を取る
+	float tx = fabsf(goal_x - x);
+	float ty = fabsf(goal_y - y);
+	if (tx > ty)
+		distance = tx;
+	distance = ty;
 }
 
 //ここで何故かdistanceが空の値になってる
@@ -62,6 +73,18 @@ void NodeManager::Initialize(Player player,Goal goal){
 		}
 	}
 
+	//画面端の座標は最初からクローズにしておく
+	for (int hoge = 0; hoge < Define::WIN_W; hoge++) {
+		//横方向
+		grid[0][hoge].s_Close();
+		grid[Define::WIN_H - 1][hoge].s_Close();
+	}
+	for (int fuga = 0; fuga < Define::WIN_H; fuga++) {
+		//縦方向
+		grid[fuga][0].s_Close();
+		grid[fuga][Define::WIN_W - 1].s_Close();
+	}
+
 	goal_x = goal.x;
 	goal_y = goal.y;
 
@@ -95,10 +118,16 @@ Node NodeManager::search(Node* node){
 				if (grid[child_y][child_x].IsNone()) {
 					grid[child_y][child_x].s_Open();					//ノードステータスをオープンに変更
 					grid[child_y][child_x].parent = node;				//中央のノードを親ノードとしてセット
-					grid[child_y][child_x].g_Cost = (*node).g_Cost + 1;	//親の実コストに1加算
+					grid[child_y][child_x].g_Cost = (*node).g_Cost + 0.9;
+					/*
+					if (cnt_x == 0 || cnt_y == 0)
+						grid[child_y][child_x].g_Cost = (*node).g_Cost + 1;	//縦横の子は実コストは親に1加算
+					else
+						grid[child_y][child_x].g_Cost = (*node).g_Cost + sqrtf(2);//斜めの子は実コストは親にルート2加算
+					*/
 					grid[child_y][child_x].calcScore();
-					printfDx("(%3d,%3d)のscoreは%f\n", child_x, child_y, grid[child_y][child_x].score);
-					openList.push(grid[child_y][child_x]);
+					//printfDx("(%3d,%3d)のscoreは%f\n", child_x, child_y, grid[child_y][child_x].score);
+ 					openList.push(grid[child_y][child_x]);
 				}
 			}
 		}
@@ -106,14 +135,39 @@ Node NodeManager::search(Node* node){
 
 	closeList.push(*node);	//親ノードはクローズリストへ格納
 	(*node).s_Close();
+	static int cnt = 0;		//再帰できる深さをcntで制限する
+	cnt++;
+	//returnを再帰用に戻したらここが動くはず
+	if (cnt>3000) {
+		cnt = 0;
+		return openList.top();
+		clear(openList);	//スタック領域のオーバーフロー対策
+	}
 	if (goal_x == openList.top().x && openList.top().y == goal_y) {
 		get_goal = true;
 		printfDx("ゴール地点が見つかりました\n");
+		Node _tmp = openList.top();	//オープンリストの要素に対するconst回避の為のバッファ
+		getPath(&_tmp);
 		return openList.top();
 	}
-	return openList.top();
-	//return search(openList.top());	//オープンリスト中で合計コストの最小ノードを返す
+	//return openList.top();
+	int top_x = openList.top().x;
+	int top_y = openList.top().y;
+	return search(&(grid[top_y][top_x]));	//オープン済みの中で合計コストが最小のノードを返す
 	//再帰的に書けばゴール地点にたどり着くまで探索を続けられる
+}
+
+void NodeManager::getPath(Node* _goal){
+	while ((*_goal).parent!=nullptr) {
+		Root _tmp;
+		_tmp.x = (*_goal).x;
+		_tmp.y = (*_goal).y;
+		root_array.push_back(_tmp);
+		return getPath((*_goal).parent);
+	}
+	root_array.reserve(root_array.size());
+	printfDx("経路を取得・格納しました。\n");
+	return;
 }
 
 //現在のオープンリスト内のノード確認をする用
@@ -124,12 +178,10 @@ void NodeManager::output(Node node){
 
 //リスト中のノードのステータスとコストを初期化して全てpopする
 void NodeManager::clear(priority_queue<Node, vector<Node>, greater<Node>> list){
+	Node node;
+	node = list.top();
 	while (!list.empty()){
-		//To do ：const外ししつつステータスをNoneに戻したい
-		Node* node;
-		//node = &(list.top());
-
-
 		list.pop();
 	}
+	list.push(node);
 }
