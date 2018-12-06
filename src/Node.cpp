@@ -8,7 +8,7 @@ using namespace std;
 // 優先度付きキューのヒープ構造中にて比較演算子"<" のオーバーロード
 //scoreを基準にnodeの大小比較を行う
 bool operator> (const Node &node1, const Node &node2) {
-	return node1.score > node2.score;
+	return node1.distance > node2.distance;
 };
 
 
@@ -19,20 +19,19 @@ Node::Node() {
 
 void Node::calcDistance(int goal_x,int goal_y){
 	//直線距離
-	//distance = sqrtf((float)(pow(x - goal_x, 2.0) + pow(y - goal_y, 2.0)));
+	distance = sqrtf((float)(pow(x - goal_x, 2.0) + pow(y - goal_y, 2.0)));
 
 	//x軸,y軸の差の和をとってみる
 	//distance = fabsf(x - goal_x) + fabsf(y - goal_x);
 
-	//x軸,y軸の差のうち、大きい方を取る
+	/*//x軸,y軸の差のうち、大きい方を取る
 	float tx = fabsf(goal_x - x);
 	float ty = fabsf(goal_y - y);
 	if (tx > ty)
 		distance = tx;
-	distance = ty;
+	distance = ty;*/
 }
 
-//ここで何故かdistanceが空の値になってる
 void Node::calcScore(){
 	score = (float)(g_Cost + distance/*+i_Cost*/);	//影響度計算が実装したら合計コストに含める
 }
@@ -118,13 +117,13 @@ Node NodeManager::search(Node* node){
 				if (grid[child_y][child_x].IsNone()) {
 					grid[child_y][child_x].s_Open();					//ノードステータスをオープンに変更
 					grid[child_y][child_x].parent = node;				//中央のノードを親ノードとしてセット
-					grid[child_y][child_x].g_Cost = (*node).g_Cost + 0.9;
-					/*
+					//grid[child_y][child_x].g_Cost = (*node).g_Cost + 1;
+					
 					if (cnt_x == 0 || cnt_y == 0)
 						grid[child_y][child_x].g_Cost = (*node).g_Cost + 1;	//縦横の子は実コストは親に1加算
 					else
 						grid[child_y][child_x].g_Cost = (*node).g_Cost + sqrtf(2);//斜めの子は実コストは親にルート2加算
-					*/
+					
 					grid[child_y][child_x].calcScore();
 					//printfDx("(%3d,%3d)のscoreは%f\n", child_x, child_y, grid[child_y][child_x].score);
  					openList.push(grid[child_y][child_x]);
