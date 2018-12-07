@@ -5,12 +5,6 @@ using namespace std;
 //書き出し用に追加
 #include <DxLib.h>
 
-// 優先度付きキューのヒープ構造中にて比較演算子"<" のオーバーロード
-//scoreを基準にnodeの大小比較を行う
-bool operator> (const Node &node1, const Node &node2) {
-	return node1.distance > node2.distance;
-};
-
 
 Node::Node() {
 	status = None;
@@ -33,7 +27,7 @@ void Node::calcDistance(int goal_x,int goal_y){
 }
 
 void Node::calcScore(){
-	score = (float)(g_Cost + distance/*+i_Cost*/);	//影響度計算が実装したら合計コストに含める
+	score = (g_Cost + distance/*+i_Cost*/);	//影響度計算が実装したら合計コストに含める
 }
 
 void Node::s_None(){
@@ -88,28 +82,29 @@ void NodeManager::Initialize(Player player,Goal goal){
 	goal_y = goal.y;
 
 	//スタートノードをオープンリストへ
-	openList.push(grid[(int)player.y][(int)player.x]);
+	openList.push(&grid[(int)player.y][(int)player.x]);
 }
 
 Node NodeManager::search(Node* node){
 	//実コストの計算
-	if ((*node).parent == nullptr) {
-		(*node).g_Cost = 0;	//親がいない＝スタート地点なので実コスト0
-		(*node).calcScore();
+	if (node->parent == nullptr) {
+		node->g_Cost = 0;	//親がいない＝スタート地点なので実コスト0
+		node->calcScore();
 	}
 
-	//（影響度の計算）
+	//（ここに影響度の計算）
 	
 
 	//親ノードをオープンリストからpop
+	closeList.push(openList.top());
 	openList.pop();
 
 	//周辺の8つを子ノードとしてオープンリストに入れる
 	for (int cnt_x = -1; cnt_x < 2; cnt_x++) {
 		for (int cnt_y = -1; cnt_y < 2; cnt_y++) {
 			//子ノードの座標を決定
-			int child_x = (*node).x + cnt_x;
-			int child_y = (*node).y + cnt_y;
+			int child_x = node->x + cnt_x;
+			int child_y = node->y + cnt_y;
 
 			//中央ノードは処理から除外する
 			if (!(cnt_x == 0 && cnt_y == 0)) {
@@ -117,67 +112,67 @@ Node NodeManager::search(Node* node){
 				if (grid[child_y][child_x].IsNone()) {
 					grid[child_y][child_x].s_Open();					//ノードステータスをオープンに変更
 					grid[child_y][child_x].parent = node;				//中央のノードを親ノードとしてセット
-					//grid[child_y][child_x].g_Cost = (*node).g_Cost + 1;
+					//grid[child_y][child_x].g_Cost = node->g_Cost + 1;
 					
 					if (cnt_x == 0 || cnt_y == 0)
-						grid[child_y][child_x].g_Cost = (*node).g_Cost + 1;	//縦横の子は実コストは親に1加算
+						grid[child_y][child_x].g_Cost = node->g_Cost + 1;	//縦横の子は実コストは親に1加算
 					else
-						grid[child_y][child_x].g_Cost = (*node).g_Cost + sqrtf(2);//斜めの子は実コストは親にルート2加算
+						grid[child_y][child_x].g_Cost = node->g_Cost + sqrtf(2);//斜めの子は実コストは親にルート2加算
 					
 					grid[child_y][child_x].calcScore();
 					//printfDx("(%3d,%3d)のscoreは%f\n", child_x, child_y, grid[child_y][child_x].score);
- 					openList.push(grid[child_y][child_x]);
+ 					openList.push(&(grid[child_y][child_x]));
 				}
 			}
 		}
 	}
 
-	closeList.push(*node);	//親ノードはクローズリストへ格納
-	(*node).s_Close();
+	closeList.push(node);	//親ノードはクローズリストへ格納
+	node->s_Close();
+	
 	static int cnt = 0;		//再帰できる深さをcntで制限する
 	cnt++;
-	//returnを再帰用に戻したらここが動くはず
 	if (cnt>3000) {
 		cnt = 0;
-		return openList.top();
+		return (*openList.top());
 		clear(openList);	//スタック領域のオーバーフロー対策
 	}
-	if (goal_x == openList.top().x && openList.top().y == goal_y) {
+	if (goal_x == openList.top()->x && openList.top()->y == goal_y) {
 		get_goal = true;
 		printfDx("ゴール地点が見つかりました\n");
-		Node _tmp = openList.top();	//オープンリストの要素に対するconst回避の為のバッファ
+		Node _tmp = (*openList.top());	//オープンリストの要素に対するconst回避の為のバッファ
 		getPath(&_tmp);
-		return openList.top();
+		return (*openList.top());
 	}
-	//return openList.top();
-	int top_x = openList.top().x;
-	int top_y = openList.top().y;
+	//return (*openList.top());
+	int top_x = openList.top()->x;
+	int top_y = openList.top()->y;
 	return search(&(grid[top_y][top_x]));	//オープン済みの中で合計コストが最小のノードを返す
 	//再帰的に書けばゴール地点にたどり着くまで探索を続けられる
 }
 
 void NodeManager::getPath(Node* _goal){
-	while ((*_goal).parent!=nullptr) {
-		Root _tmp;
-		_tmp.x = (*_goal).x;
-		_tmp.y = (*_goal).y;
-		root_array.push_back(_tmp);
-		return getPath((*_goal).parent);
+	while (_goal->parent!=nullptr) {
+		Point _tmp;
+		_tmp.x = _goal->x;
+		_tmp.y = _goal->y;
+		root.push_back(_tmp);
+		return getPath(_goal->parent);
 	}
-	root_array.reserve(root_array.size());
+	root.reserve(root.size());
 	printfDx("経路を取得・格納しました。\n");
 	return;
 }
 
 //現在のオープンリスト内のノード確認をする用
-void NodeManager::output(Node node){
+void NodeManager::output(Node *node){
 	openList.pop();
 	closeList.push(node);
 }
 
 //リスト中のノードのステータスとコストを初期化して全てpopする
-void NodeManager::clear(priority_queue<Node, vector<Node>, greater<Node>> list){
-	Node node;
+void NodeManager::clear(priority_queue<Node*, vector<Node*>, NodeCompare> list){
+	Node* node;
 	node = list.top();
 	while (!list.empty()){
 		list.pop();

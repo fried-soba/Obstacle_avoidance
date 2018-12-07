@@ -73,7 +73,7 @@ void TitleScene::update()
 			fprintf(outputfile,"コストの昇順でオープンリストをpushします\n");
 			fprintf(outputfile, "%d個のノードがあります。\n", nodeMgr.openList.size());
 			while (!nodeMgr.openList.empty()) {
-				fprintf(outputfile, "(%3d,%3d)のコストは%fです\n", nodeMgr.openList.top().x, nodeMgr.openList.top().y, nodeMgr.openList.top().score);
+				fprintf(outputfile, "(%3d,%3d)のコストは%fです\n", nodeMgr.openList.top()->x, nodeMgr.openList.top()->y, nodeMgr.openList.top()->score);
 				nodeMgr.output(nodeMgr.openList.top());
 			}
 			fclose(outputfile);
@@ -87,9 +87,9 @@ void TitleScene::draw() {
 	for (int cnt = 0; cnt < NUM; cnt++) {
 		_human[cnt].draw();
 	}
-	for (int cnt = 0; cnt < nodeMgr.root_array.size(); cnt++) {
-		int x1 = nodeMgr.root_array[cnt].x;
-		int y1 = nodeMgr.root_array[cnt].y;
+	for (unsigned int cnt = 0; cnt < nodeMgr.root.size(); cnt++) {
+		int x1 = nodeMgr.root[cnt].x;
+		int y1 = nodeMgr.root[cnt].y;
 		int x2 = x1 + 1;
 		int y2 = y1 + 1;
 		DrawBox(x1, y1, x2, y2, GetColor(255, 255, 255), FALSE);

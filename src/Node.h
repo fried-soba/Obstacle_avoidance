@@ -17,7 +17,7 @@ public:
 	};
 	eStatus status;
 	int x, y;			//ノード座標
-	int g_Cost;			//実コスト
+	float g_Cost;			//実コスト
 	float distance;		//推定コストその1：ゴール地点までの直線距離
 	int i_Cost;			//推定コストその2：InfluenceMapで計算する
 	float score;			//コスト合計値
@@ -31,11 +31,17 @@ public:
 	bool IsNone();
 };
 
-//配列にして探索の完了したルートを格納する用の構造体
+struct NodeCompare {
+	bool operator()(const Node* a, const Node* b) const {
+		return (*a).distance > (*b).distance;
+	}
+};
+
+//配列にして探索の完了した座標を格納する用の構造体
 typedef struct coordinates {
 	int x;
 	int y;
-} Root;
+} Point;
 
 class NodeManager{
 public:
@@ -46,10 +52,10 @@ public:
 	int get_goal = false;
 	Node search(Node *node);
 	void getPath(Node *goal);
-	void output(Node node);
-	void clear(priority_queue<Node, vector<Node>, greater<Node>> list);
+	void output(Node *node);
+	void clear(priority_queue<Node*, vector<Node*>, NodeCompare> list);
 //private:
-	priority_queue<Node, vector<Node>, greater<Node>> openList, closeList;	//ノードを格納する優先度付きキュー、ソートは昇順
-	vector<Root> root_array;														//探索経路を格納する配列
+	priority_queue<Node*, vector<Node*>, NodeCompare> openList, closeList;	//ノードのポインタを格納する優先度付きキュー、ソートは昇順
+	vector<Point> root;														//探索経路を格納する配列
 	Node **grid = new Node*[Define::WIN_H];
 };
