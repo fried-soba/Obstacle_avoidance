@@ -3,6 +3,8 @@
 #include "AI.h"
 #include "Define.h"
 #include <queue>
+#define BLOCKS 6	//適当に配置する静的障害物の数
+
 using namespace std;
 
 //各Grid(=長さ1の正方形のノード)のステータス
@@ -43,6 +45,23 @@ typedef struct coordinates {
 	int y;
 } Point;
 
+class SquareBlock {
+	int x, x_end;
+	int y,  y_end;
+	int thickness,length;
+	unsigned int color;
+public:
+	SquareBlock();
+	void draw();
+	void giveGrid(Node** grid);
+	Node **_grid;
+};
+
+typedef struct block {
+	int x, x_end;
+	int y, y_end;
+} Block;
+
 class NodeManager{
 public:
 	NodeManager();
@@ -58,4 +77,5 @@ public:
 	priority_queue<Node*, vector<Node*>, NodeCompare> openList, closeList;	//ノードのポインタを格納する優先度付きキュー、ソートは昇順
 	vector<Point> root;														//探索経路を格納する配列
 	Node **grid = new Node*[Define::WIN_H];
+	SquareBlock block[BLOCKS];
 };

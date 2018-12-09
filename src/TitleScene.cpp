@@ -12,11 +12,13 @@ TitleScene::TitleScene(IOnSceneChangedListener* impl, const Parameter& parameter
 {
 	SRand((unsigned int)time(NULL));	//Rand()のseed値をランダム化
 
-	_player.x = 100;
-	_player.y = 100;
+	//_player.x = 100;
+	//_player.y = 100;
 
 	nodeMgr.Initialize(_player,_goal);
-
+	for (int cnt = 0; cnt < BLOCKS; cnt++){
+		nodeMgr.block[cnt].giveGrid(nodeMgr.grid);
+	}
 
 
 	//探索開始前にスタートノードをオープンリストへ
@@ -94,6 +96,8 @@ void TitleScene::draw() {
 		int y2 = y1 + 1;
 		DrawBox(x1, y1, x2, y2, GetColor(255, 255, 255), FALSE);
 	}
+	for (int cnt = 0; cnt < BLOCKS; cnt++)
+		nodeMgr.block[cnt].draw();
 	//DrawFormatString(100, 40, GetColor(255, 255, 255), "%d", _grid[1][1].status);	//ノード開閉検査用
 	DrawFormatString(100, 80, GetColor(255, 255, 255), "距離：%d x:%.1f y:%.1f", _player.distance(&_goal),_player.x,_player.y);	//ゴールまでの距離と現在地
 	//const static int tmp;
