@@ -33,6 +33,7 @@ private:
 public:
 	Player();
 	~Player() = default;
+	void reset();
 	void update(Goal *goal);
 	void draw();
 	bool checkHit(float x, float y);

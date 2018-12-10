@@ -23,6 +23,15 @@ Player::Player() {
 	color = GetColor(255, 255, 255);
 	hitStatus = false;
 }
+void Player::reset(){
+	x = (float)GetRand(Define::WIN_W / 5);
+	y = (float)GetRand(Define::WIN_H);
+	angle = (float)(330 + GetRand(30))*Define::PI / 180;
+	xSpeed = (float)speed * cosf(angle);
+	ySpeed = (float)speed * sinf(angle);
+	color = GetColor(255, 255, 255);
+	hitStatus = false;
+}
 void Player::update(Goal *goal) {
 	//’â~Ï‚İ‚Ì‚Æ‚«‚ÍXV‚µ‚È‚¢
 	if (hitStatus)

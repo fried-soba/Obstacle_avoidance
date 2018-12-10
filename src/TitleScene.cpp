@@ -29,7 +29,7 @@ TitleScene::TitleScene(IOnSceneChangedListener* impl, const Parameter& parameter
 
 void TitleScene::update()
 {
-	if (CheckHitKey(KEY_INPUT_R)) {
+	if (CheckHitKey(KEY_INPUT_G)) {
         Parameter parameter;
 		parameter.set(GameScene::ParameterTagLevel, Define::eLevel::Easy);
         const bool stackClear = false;
@@ -77,6 +77,13 @@ void TitleScene::update()
 				nodeMgr.output(nodeMgr.openList.top());
 			}
 			fclose(outputfile);
+		}
+	}
+
+	if (CheckHitKey(KEY_INPUT_R)) {
+		_player.reset();
+		for (int cnt = 0; cnt < NUM; cnt++) {
+			_human[cnt].reset();
 		}
 	}
 }
