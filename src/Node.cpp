@@ -130,18 +130,6 @@ void NodeManager::Initialize(Player player,Goal goal){
 
 	//スタートノードをオープンリストへ
 	openList.push(&grid[(int)player.y][(int)player.x]);
-	/*
-	//静的障害物の設定
-	block.x = 600;
-	block.x_end = 700;
-	block.y = 300;
-	block.y_end = 700;
-	for (int y = block.y; y < block.y_end; y++){
-		for (int x = block.x; x < block.x_end; x++) {
-			grid[y][x].s_Close();
-		}
-	}
-	*/
 
 	block[0]._grid = grid;
 }
@@ -202,6 +190,8 @@ Node NodeManager::search(Node* center){
 	
 	if (openList.size() == 0) {
 		printfDx("探索に失敗しました。オープンリストが空です\n");
+		//失敗した場合は返却なにも返したくない
+		//return (Node*)nullptr;
 	}
 
 	if (goal_x == openList.top()->x && openList.top()->y == goal_y) {
@@ -225,7 +215,7 @@ void NodeManager::getPath(Node* _goal){
 		root.push_back(_tmp);
 		return getPath(_goal->parent);
 	}
-	root.reserve(root.size());
+	root.reserve(root.size());//要素の逆転ではなくキャパシティの変更
 	printfDx("経路を取得・格納しました。\n");
 	return;
 }

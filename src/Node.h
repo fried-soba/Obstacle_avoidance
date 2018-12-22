@@ -3,9 +3,9 @@
 #include "AI.h"
 #include "Define.h"
 #include <queue>
-#define BLOCKS 6	//適当に配置する静的障害物の数
+#define BLOCKS 10      	//適当に配置する静的障害物の数
 
-using namespace std;
+
 
 //各Grid(=長さ1の正方形のノード)のステータス
 class Node {
@@ -35,15 +35,9 @@ public:
 
 struct NodeCompare {
 	bool operator()(const Node* a, const Node* b) const {
-		return (*a).distance > (*b).distance;
+		return a->distance > b->distance;
 	}
 };
-
-//配列にして探索の完了した座標を格納する用の構造体
-typedef struct coordinates {
-	int x;
-	int y;
-} Point;
 
 class SquareBlock {
 	int x, x_end;
@@ -56,11 +50,6 @@ public:
 	void giveGrid(Node** grid);
 	Node **_grid;
 };
-
-typedef struct block {
-	int x, x_end;
-	int y, y_end;
-} Block;
 
 class NodeManager{
 public:
