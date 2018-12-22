@@ -38,30 +38,29 @@ void Player::update(Goal *goal) {
 		return;
 
 	//ゴールに向けて一直線で動く仮の処理（A*実装後は不要）
-	checkGoal((*goal).x, (*goal).y);
+	
+	checkGoal(goal->x, goal->y);
 	float degree = 180/Define::PI*atanf(((*goal).y - y) / ((*goal).x - x));
 	if (degree > 90)
-		degree += 180;
-	
+		degree += 180;	
 	angle = degree*Define::PI / 180;
-	/*
-	if (x - radius <= 0 || x + radius >= Define::WIN_W)
-		xSpeed = -xSpeed;
-	if (y - radius <= 0 || y + radius >= Define::WIN_H)
-		ySpeed = -ySpeed;
-	*/
+
 	xSpeed = (float)speed * cosf(angle);
 	ySpeed = (float)speed * sinf(angle);
 	x += xSpeed;
 	y += ySpeed;
-
+	
+	//経路rootは逆側に格納されているのでイテレーターも逆に辿るころ初期位置から動く
+	static auto itr = root.rbegin();
+	itr++;
+	if (itr < root.rend()) {
+		x = (float)itr->x;
+		y = (float)itr->y;
+	}
 }
 void Player::draw() {
 	DrawCircle((int)x, (int)y, radius, color, 1);
 	DrawCircle((int)x, (int)y, radius / 2, GetColor(0, 0, 0), 1);
-	//printfDx("%6.1lf,%6.1lf", x, y);
-	//DrawFormatString(100, 0, GetColor(255, 255, 255), "%5.2lf,%5.2lf", xSpeed, ySpeed);
-	//DrawFormatString(100, 100, GetColor(255, 255, 255), "%6.1lf,%6.1lf", x, y);
 }
 
 //接触判定

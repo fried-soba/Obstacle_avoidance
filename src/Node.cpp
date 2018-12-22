@@ -49,6 +49,53 @@ bool Node::IsNone(){
 		return false;
 }
 
+SquareBlock::SquareBlock() {
+	x = Define::WIN_W * 1 / 5 + GetRand(Define::WIN_W * 2 / 5);		//スタート-ゴール間のどこか
+	y = 100 + GetRand(Define::WIN_H - 200);							//上下端100は空くようにする
+	thickness = GetRand(200);
+	length = GetRand(500);
+	bool _direction = GetRand(1);
+	if (_direction) {
+		x_end = x + thickness;
+		y_end = y + length;
+	}
+	else {
+		x_end = x + length;
+		y_end = y + thickness;
+	}
+	if (x_end > Define::WIN_W*4/5) {
+		x_end = Define::WIN_W*4/5 - 1;
+		printfDx("ブロックがゴールに重なりそうなので修正したよ\n");
+	}
+	if (y_end > Define::WIN_H) {
+		y_end = Define::WIN_H - 1;
+		printfDx("ブロックがy軸をはみ出したので修正したよ\n");
+	}
+	/*
+	for (int cnt_y = y; cnt_y < y_end; y++) {
+		for (int cnt_x = x; cnt_x < x_end; cnt_x++){
+			_grid[cnt_y][cnt_x].s_Close();
+		}
+	}
+	*/
+	color = GetColor(GetRand(255), GetRand(255), GetRand(255));
+}
+
+void SquareBlock::draw() {
+	DrawBox(x, y, x_end, y_end, color, TRUE);
+}
+
+void SquareBlock::giveGrid(Node ** grid)
+{
+	_grid = grid;
+	for (int cnt_y = y; cnt_y < y_end; cnt_y++) {
+		for (int cnt_x = x; cnt_x < x_end; cnt_x++) {
+			_grid[cnt_y][cnt_x].s_Close();
+		}
+	}
+}
+
+
 NodeManager::NodeManager() {}
 
 void NodeManager::Initialize(Player player,Goal goal){
@@ -83,13 +130,15 @@ void NodeManager::Initialize(Player player,Goal goal){
 
 	//スタートノードをオープンリストへ
 	openList.push(&grid[(int)player.y][(int)player.x]);
+
+	block[0]._grid = grid;
 }
 
-Node NodeManager::search(Node* node){
+Node NodeManager::search(Node* center){
 	//実コストの計算
-	if (node->parent == nullptr) {
-		node->g_Cost = 0;	//親がいない＝スタート地点なので実コスト0
-		node->calcScore();
+	if (center->parent == nullptr) {
+		center->g_Cost = 0;	//親がいない＝スタート地点なので実コスト0
+		center->calcScore();
 	}
 
 	//（ここに影響度の計算）
@@ -103,21 +152,21 @@ Node NodeManager::search(Node* node){
 	for (int cnt_x = -1; cnt_x < 2; cnt_x++) {
 		for (int cnt_y = -1; cnt_y < 2; cnt_y++) {
 			//子ノードの座標を決定
-			int child_x = node->x + cnt_x;
-			int child_y = node->y + cnt_y;
+			int child_x = center->x + cnt_x;
+			int child_y = center->y + cnt_y;
 
 			//中央ノードは処理から除外する
 			if (!(cnt_x == 0 && cnt_y == 0)) {
 				//ステータスがNoneのノードのみ操作する
 				if (grid[child_y][child_x].IsNone()) {
 					grid[child_y][child_x].s_Open();					//ノードステータスをオープンに変更
-					grid[child_y][child_x].parent = node;				//中央のノードを親ノードとしてセット
-					//grid[child_y][child_x].g_Cost = node->g_Cost + 1;
+					grid[child_y][child_x].parent = center;				//中央ノードポインタを親としてセット
+					//grid[child_y][child_x].g_Cost = center->g_Cost + 1;
 					
 					if (cnt_x == 0 || cnt_y == 0)
-						grid[child_y][child_x].g_Cost = node->g_Cost + 1;	//縦横の子は実コストは親に1加算
+						grid[child_y][child_x].g_Cost = center->g_Cost + 1;	//縦横の子は実コストは親に1加算
 					else
-						grid[child_y][child_x].g_Cost = node->g_Cost + sqrtf(2);//斜めの子は実コストは親にルート2加算
+						grid[child_y][child_x].g_Cost = center->g_Cost + sqrtf(2);//斜めの子は実コストは親にルート2加算
 					
 					grid[child_y][child_x].calcScore();
 					//printfDx("(%3d,%3d)のscoreは%f\n", child_x, child_y, grid[child_y][child_x].score);
@@ -127,16 +176,24 @@ Node NodeManager::search(Node* node){
 		}
 	}
 
-	closeList.push(node);	//親ノードはクローズリストへ格納
-	node->s_Close();
+	closeList.push(center);	//親ノードはクローズリストへ格納
+	center->s_Close();
 	
+	//スタック領域のオーバーフロー対策	//追記実行中のメモリ使用量を見ると対策になっていない模様
 	static int cnt = 0;		//再帰できる深さをcntで制限する
 	cnt++;
-	if (cnt>3000) {
+	if (cnt>30000) {
 		cnt = 0;
-		return (*openList.top());
+		//return (*openList.top());
 		clear(openList);	//スタック領域のオーバーフロー対策
 	}
+	
+	if (openList.size() == 0) {
+		printfDx("探索に失敗しました。オープンリストが空です\n");
+		//失敗した場合は返却なにも返したくない
+		//return (Node*)nullptr;
+	}
+
 	if (goal_x == openList.top()->x && openList.top()->y == goal_y) {
 		get_goal = true;
 		printfDx("ゴール地点が見つかりました\n");
@@ -144,7 +201,6 @@ Node NodeManager::search(Node* node){
 		getPath(&_tmp);
 		return (*openList.top());
 	}
-	//return (*openList.top());
 	int top_x = openList.top()->x;
 	int top_y = openList.top()->y;
 	return search(&(grid[top_y][top_x]));	//オープン済みの中で合計コストが最小のノードを返す
@@ -159,7 +215,7 @@ void NodeManager::getPath(Node* _goal){
 		root.push_back(_tmp);
 		return getPath(_goal->parent);
 	}
-	root.reserve(root.size());
+	root.reserve(root.size());//要素の逆転ではなくキャパシティの変更
 	printfDx("経路を取得・格納しました。\n");
 	return;
 }

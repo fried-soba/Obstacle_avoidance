@@ -3,7 +3,9 @@
 #include "AI.h"
 #include "Define.h"
 #include <queue>
-using namespace std;
+#define BLOCKS 10      	//適当に配置する静的障害物の数
+
+
 
 //各Grid(=長さ1の正方形のノード)のステータス
 class Node {
@@ -33,15 +35,21 @@ public:
 
 struct NodeCompare {
 	bool operator()(const Node* a, const Node* b) const {
-		return (*a).distance > (*b).distance;
+		return a->distance > b->distance;
 	}
 };
 
-//配列にして探索の完了した座標を格納する用の構造体
-typedef struct coordinates {
-	int x;
-	int y;
-} Point;
+class SquareBlock {
+	int x, x_end;
+	int y,  y_end;
+	int thickness,length;
+	unsigned int color;
+public:
+	SquareBlock();
+	void draw();
+	void giveGrid(Node** grid);
+	Node **_grid;
+};
 
 class NodeManager{
 public:
@@ -58,4 +66,5 @@ public:
 	priority_queue<Node*, vector<Node*>, NodeCompare> openList, closeList;	//ノードのポインタを格納する優先度付きキュー、ソートは昇順
 	vector<Point> root;														//探索経路を格納する配列
 	Node **grid = new Node*[Define::WIN_H];
+	SquareBlock block[BLOCKS];
 };
