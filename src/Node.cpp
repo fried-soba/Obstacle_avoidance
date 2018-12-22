@@ -11,42 +11,25 @@ Node::Node() {
 	parent = nullptr;
 }
 
-void Node::calcDistance(int goal_x,int goal_y){
+void Node::calcDistance(Node start, Goal goal) {
 	//直線距離
-	distance = sqrtf((float)(pow(x - goal_x, 2.0) + pow(y - goal_y, 2.0)));
+	fromStartDistance= sqrtf((float)(pow(x - start.x, 2.0) + pow(y - start.y, 2.0)));
+	toGoalDistance = sqrtf((float)(pow(x - goal.x, 2.0) + pow(y - goal.y, 2.0)));
+	suppositionScore = fromStartDistance + toGoalDistance;
 
 	//x軸,y軸の差の和をとってみる
-	//distance = fabsf(x - goal_x) + fabsf(y - goal_x);
+	//toGoalDistance = fabsf(x - goal_x) + fabsf(y - goal_x);
 
 	/*//x軸,y軸の差のうち、大きい方を取る
 	float tx = fabsf(goal_x - x);
 	float ty = fabsf(goal_y - y);
 	if (tx > ty)
-		distance = tx;
-	distance = ty;*/
+		toGoalDistance = tx;
+	toGoalDistance = ty;*/
 }
 
 void Node::calcScore(){
-	score = (g_Cost + distance/*+i_Cost*/);	//影響度計算が実装したら合計コストに含める
-}
-
-void Node::s_None(){
-	status = None;
-}
-
-void Node::s_Open(){
-	status = Open;
-}
-
-void Node::s_Close(){
-	status = Close;
-}
-
-bool Node::IsNone(){
-	if (status == None)
-		return true;
-	else
-		return false;
+	score = (g_Cost + toGoalDistance/*+i_Cost*/);	//影響度計算が実装したら合計コストに含める
 }
 
 SquareBlock::SquareBlock() {
@@ -74,7 +57,7 @@ SquareBlock::SquareBlock() {
 	/*
 	for (int cnt_y = y; cnt_y < y_end; y++) {
 		for (int cnt_x = x; cnt_x < x_end; cnt_x++){
-			_grid[cnt_y][cnt_x].s_Close();
+			_grid[cnt_y][cnt_x].status = Close;
 		}
 	}
 	*/
@@ -89,9 +72,8 @@ void SquareBlock::giveGrid(Node ** grid)
 {
 	_grid = grid;
 	for (int cnt_y = y; cnt_y < y_end; cnt_y++) {
-		for (int cnt_x = x; cnt_x < x_end; cnt_x++) {
-			_grid[cnt_y][cnt_x].s_Close();
-		}
+		for (int cnt_x = x; cnt_x < x_end; cnt_x++)
+			_grid[cnt_y][cnt_x].status = Block;
 	}
 }
 
@@ -104,25 +86,29 @@ void NodeManager::Initialize(Player player,Goal goal){
 		grid[cnt] = new Node[Define::WIN_W];
 	}
 
+	//仮想スタートノード
+	Node _start;
+	_start.x = player.x;	_start.y = player.y;
+
 	//グリッドに座標を指定しゴール地点までの距離を計算
 	for (int height = 0; height < Define::WIN_H; height++) {
 		for (int width = 0; width < Define::WIN_W; width++) {
 			grid[height][width].y = height;
 			grid[height][width].x = width;
-			grid[height][width].calcDistance(goal.x,goal.y);
+			grid[height][width].calcDistance(_start,goal);
 		}
 	}
 
 	//画面端の座標は最初からクローズにしておく
 	for (int hoge = 0; hoge < Define::WIN_W; hoge++) {
 		//横方向
-		grid[0][hoge].s_Close();
-		grid[Define::WIN_H - 1][hoge].s_Close();
+		grid[0][hoge].status = Close;
+		grid[Define::WIN_H - 1][hoge].status = Close;
 	}
 	for (int fuga = 0; fuga < Define::WIN_H; fuga++) {
 		//縦方向
-		grid[fuga][0].s_Close();
-		grid[fuga][Define::WIN_W - 1].s_Close();
+		grid[fuga][0].status = Close;
+		grid[fuga][Define::WIN_W - 1].status = Close;
 	}
 
 	goal_x = goal.x;
@@ -145,39 +131,63 @@ Node NodeManager::search(Node* center){
 	
 
 	//親ノードをオープンリストからpop
-	closeList.push(openList.top());
 	openList.pop();
+	center->status = Close;
 
 	//周辺の8つを子ノードとしてオープンリストに入れる
-	for (int cnt_x = -1; cnt_x < 2; cnt_x++) {
-		for (int cnt_y = -1; cnt_y < 2; cnt_y++) {
-			//子ノードの座標を決定
-			int child_x = center->x + cnt_x;
-			int child_y = center->y + cnt_y;
-
+	for (int cnt_x = -1; cnt_x <= 1; cnt_x++) {
+		for (int cnt_y = -1; cnt_y <= 1; cnt_y++) {
 			//中央ノードは処理から除外する
 			if (!(cnt_x == 0 && cnt_y == 0)) {
-				//ステータスがNoneのノードのみ操作する
-				if (grid[child_y][child_x].IsNone()) {
-					grid[child_y][child_x].s_Open();					//ノードステータスをオープンに変更
-					grid[child_y][child_x].parent = center;				//中央ノードポインタを親としてセット
-					//grid[child_y][child_x].g_Cost = center->g_Cost + 1;
-					
+				
+				//子ノードの座標を決定
+				Node* child = &grid[center->y + cnt_y][center->x + cnt_x];
+
+				if (child->status == None) {
+					child->status = Open;
+					child->parent = center;					
 					if (cnt_x == 0 || cnt_y == 0)
-						grid[child_y][child_x].g_Cost = center->g_Cost + 1;	//縦横の子は実コストは親に1加算
+						child->g_Cost = center->g_Cost + 1;			//縦横の子は実コストは親に1加算
 					else
-						grid[child_y][child_x].g_Cost = center->g_Cost + sqrtf(2);//斜めの子は実コストは親にルート2加算
+						child->g_Cost = center->g_Cost + sqrtf(2);	//斜めの子は実コストは親にルート2加算
+					openList.push(child);
+				}
+				/*追加思案中
+				if (child->status = Open) {
+					//g_Costを弄るべきかは経路見て今後判断
+					if (center->suppositionScore > child->suppositionScore)
+						child->parent = center->parent;
+				}
+				*/
+				/*追加思案中
+				if (child->status == Close) {
+					if (center->suppositionScore > child->suppositionScore) {
+						child->parent = center->parent;
+						center->suppositionScore = child->suppositionScore;
+						child->status = Open;
+					}
+				}
+				*/
+
+
+				/*旧アルゴリズム
+				//ステータスがNoneのノードのみ操作する
+				if (child->status == None) {
+					child->status = Open;					//ノードステータスをオープンに変更
+					child->parent = center;				//中央ノードポインタを親としてセット
+					if (cnt_x == 0 || cnt_y == 0)
+						child->g_Cost = center->g_Cost + 1;	//縦横の子は実コストは親に1加算
+					else
+						child->g_Cost = center->g_Cost + sqrtf(2);//斜めの子は実コストは親にルート2加算
 					
-					grid[child_y][child_x].calcScore();
-					//printfDx("(%3d,%3d)のscoreは%f\n", child_x, child_y, grid[child_y][child_x].score);
+					child->calcScore();
+					//printfDx("(%3d,%3d)のscoreは%f\n", child_x, child_y, child->score);
  					openList.push(&(grid[child_y][child_x]));
 				}
+				*/
 			}
 		}
 	}
-
-	closeList.push(center);	//親ノードはクローズリストへ格納
-	center->s_Close();
 	
 	//スタック領域のオーバーフロー対策	//追記実行中のメモリ使用量を見ると対策になっていない模様
 	static int cnt = 0;		//再帰できる深さをcntで制限する
@@ -190,7 +200,7 @@ Node NodeManager::search(Node* center){
 	
 	if (openList.size() == 0) {
 		printfDx("探索に失敗しました。オープンリストが空です\n");
-		//失敗した場合は返却なにも返したくない
+		//失敗した場合は返却なにも返したくないが、何を返すべきか検討
 		//return (Node*)nullptr;
 	}
 
@@ -215,7 +225,6 @@ void NodeManager::getPath(Node* _goal){
 		root.push_back(_tmp);
 		return getPath(_goal->parent);
 	}
-	root.reserve(root.size());//要素の逆転ではなくキャパシティの変更
 	printfDx("経路を取得・格納しました。\n");
 	return;
 }
@@ -223,7 +232,6 @@ void NodeManager::getPath(Node* _goal){
 //現在のオープンリスト内のノード確認をする用
 void NodeManager::output(Node *node){
 	openList.pop();
-	closeList.push(node);
 }
 
 //リスト中のノードのステータスとコストを初期化して全てpopする

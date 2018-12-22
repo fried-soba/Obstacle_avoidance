@@ -27,8 +27,8 @@ void Player::reset(){
 	x = (float)GetRand(Define::WIN_W / 5);
 	y = (float)GetRand(Define::WIN_H);
 	angle = (float)(330 + GetRand(30))*Define::PI / 180;
-	xSpeed = (float)speed * cosf(angle);
-	ySpeed = (float)speed * sinf(angle);
+	xSpeed = speed * cosf(angle);
+	ySpeed = speed * sinf(angle);
 	color = GetColor(255, 255, 255);
 	hitStatus = false;
 }
@@ -36,26 +36,14 @@ void Player::update(Goal *goal) {
 	//停止済みのときは更新しない
 	if (hitStatus)
 		return;
-
-	//ゴールに向けて一直線で動く仮の処理（A*実装後は不要）
-	
 	checkGoal(goal->x, goal->y);
-	float degree = 180/Define::PI*atanf(((*goal).y - y) / ((*goal).x - x));
-	if (degree > 90)
-		degree += 180;	
-	angle = degree*Define::PI / 180;
-
-	xSpeed = (float)speed * cosf(angle);
-	ySpeed = (float)speed * sinf(angle);
-	x += xSpeed;
-	y += ySpeed;
 	
-	//経路rootは逆側に格納されているのでイテレーターも逆に辿るころ初期位置から動く
+	//経路rootは逆側に格納されているのでイテレーターも逆に辿ることで初期位置から動く
 	static auto itr = root.rbegin();
-	itr++;
 	if (itr < root.rend()) {
 		x = (float)itr->x;
 		y = (float)itr->y;
+		itr++;
 	}
 }
 void Player::draw() {
@@ -65,7 +53,6 @@ void Player::draw() {
 
 //接触判定
 bool Player::checkHit(float human_x, float human_y) {
-	//if(human_x*human_x+human_y*human_y < (2 * radius)*(2 * radius))
 	if (pow(human_x - x, 2.0) + pow(human_y - y, 2.0) < pow(2 * radius, 2.0)) {
 		color = GetColor(255, 0, 0);
 		hitStatus = true;
@@ -73,13 +60,12 @@ bool Player::checkHit(float human_x, float human_y) {
 	}
 	else
 		return false;
-	
 }
 
-//ゴール判定:座標がほぼ重なったらゴール
+//ゴール判定:座標が重なったらゴール
 void Player::checkGoal(int goal_x, int goal_y)
 {
-	if (abs(goal_x - (int)x) < 2 && abs(goal_y - (int)y) < 2) {
+	if (abs(goal_x - (int)x) == 0 && abs(goal_y - (int)y) == 0) {
 		stop();
 		hitStatus = true;
 		color = GetColor(0, 255, 255);

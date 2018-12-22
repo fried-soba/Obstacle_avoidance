@@ -3,39 +3,37 @@
 #include "AI.h"
 #include "Define.h"
 #include <queue>
-#define BLOCKS 10      	//適当に配置する静的障害物の数
+#define BLOCKS 11      	//適当に配置する静的障害物の数
 
-
+enum eStatus {
+	None,
+	Open,
+	Close,
+	Block
+};
 
 //各Grid(=長さ1の正方形のノード)のステータス
 class Node {
 public:
 	Node();
 	~Node() = default;
-	enum eStatus{
-		None,
-		Open,
-		Close
-	};
 	eStatus status;
 	int x, y;			//ノード座標
 	float g_Cost;			//実コスト
-	float distance;		//推定コストその1：ゴール地点までの直線距離
+	float suppositionScore;		//仮想f(n)
+	float fromStartDistance;	//スタート地点からの直線距離（ 仮想g(n) ）
+	float toGoalDistance;		//推定コストその1：ゴール地点までの直線距離（ 仮想h(n) ）
 	int i_Cost;			//推定コストその2：InfluenceMapで計算する
 	float score;			//コスト合計値
 
 	Node *parent;			//親ノードのポインタ
-	void calcDistance(int goal_x,int goal_y);
+	void calcDistance(Node start, Goal goal);
 	void calcScore();		//合計スコアを計算
-	void s_None();
-	void s_Open();
-	void s_Close();
-	bool IsNone();
 };
 
 struct NodeCompare {
 	bool operator()(const Node* a, const Node* b) const {
-		return a->distance > b->distance;
+		return a->toGoalDistance > b->toGoalDistance;
 	}
 };
 
@@ -63,7 +61,7 @@ public:
 	void output(Node *node);
 	void clear(priority_queue<Node*, vector<Node*>, NodeCompare> list);
 //private:
-	priority_queue<Node*, vector<Node*>, NodeCompare> openList, closeList;	//ノードのポインタを格納する優先度付きキュー、ソートは昇順
+	priority_queue<Node*, vector<Node*>, NodeCompare> openList;	//ノードのポインタを格納する優先度付きキュー、ソートは昇順
 	vector<Point> root;														//探索経路を格納する配列
 	Node **grid = new Node*[Define::WIN_H];
 	SquareBlock block[BLOCKS];

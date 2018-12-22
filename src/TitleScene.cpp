@@ -104,5 +104,5 @@ void TitleScene::draw() {
 	}
 	for (int cnt = 0; cnt < BLOCKS; cnt++)
 		nodeMgr.block[cnt].draw();
-	DrawFormatString(100, 80, GetColor(255, 255, 255), "距離：%d x:%.1f y:%.1f", _player.distance(&_goal),_player.x,_player.y);	//ゴールまでの距離と現在地	
+	DrawFormatString(100, 80, GetColor(255, 255, 255), "距離：%d x:%.0f y:%.0f", _player.distance(&_goal),_player.x,_player.y);	//ゴールまでの距離と現在地	
 }
