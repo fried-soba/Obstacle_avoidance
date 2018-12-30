@@ -16,16 +16,9 @@ TitleScene::TitleScene(IOnSceneChangedListener* impl, const Parameter& parameter
 	for (int cnt = 0; cnt < BLOCKS; cnt++){
 		nodeMgr.block[cnt].giveGrid(nodeMgr.grid);
 	}
-
-
-	//探索開始前にスタートノードをオープンリストへ
-	//nodeMgr.openList.push(nodeMgr.grid[(int)_player.y][(int)_player.x]);
-
-	Node first = nodeMgr.search(&nodeMgr.grid[(int)_player.y][(int)_player.x]);	//とりあえず確認用にスタートノード周辺を展開
-	if (nodeMgr.get_goal)
-		_player.root = nodeMgr.root;
-	//Node second = nodeMgr.search(&first);
-	//Node third = nodeMgr.search(&second);
+	eResult result = nodeMgr.search(&nodeMgr.grid[(int)_player.y][(int)_player.x]);	//とりあえず確認用にスタートノード周辺を展開
+	if (result == arrival)
+		_player.root = &nodeMgr.root;
 }
 
 void TitleScene::update()
@@ -63,21 +56,23 @@ void TitleScene::update()
 
 	//オープンリスト中のノードをtxtファイルへ書き出し
 	if (CheckHitKey(KEY_INPUT_W)) {
-		printfDx("ノード数は%d個です\n", nodeMgr.openList.size());
 		if (!nodeMgr.openList.empty()) {
-			FILE* outputfile = fopen("PopResult.txt", "w");
-			if (outputfile == NULL) {
-				printfDx("ファイルが使用中です。\n");
-				exit(1);
+			printfDx("ノード数は%d個です\n", nodeMgr.openList.size());
+			if (!nodeMgr.openList.empty()) {
+				FILE* outputfile = fopen("PopResult.txt", "w");
+				if (outputfile == NULL) {
+					printfDx("ファイルが使用中です。\n");
+					exit(1);
+				}
+				fprintf(outputfile, "ゴール座標は(%4d,%4d)\n", _goal.x, _goal.y);
+				fprintf(outputfile, "コストの昇順でオープンリストをpushします\n");
+				fprintf(outputfile, "%d個のノードがあります。\n", nodeMgr.openList.size());
+				while (!nodeMgr.openList.empty()) {
+					fprintf(outputfile, "(%3d,%3d)のコストは%fです\n", nodeMgr.openList.top()->x, nodeMgr.openList.top()->y, nodeMgr.openList.top()->score);
+					nodeMgr.openList.pop();
+				}
+				fclose(outputfile);
 			}
-			fprintf(outputfile, "ゴール座標は(%4d,%4d)\n", _goal.x, _goal.y);
-			fprintf(outputfile,"コストの昇順でオープンリストをpushします\n");
-			fprintf(outputfile, "%d個のノードがあります。\n", nodeMgr.openList.size());
-			while (!nodeMgr.openList.empty()) {
-				fprintf(outputfile, "(%3d,%3d)のコストは%fです\n", nodeMgr.openList.top()->x, nodeMgr.openList.top()->y, nodeMgr.openList.top()->score);
-				nodeMgr.output(nodeMgr.openList.top());
-			}
-			fclose(outputfile);
 		}
 	}
 
@@ -104,5 +99,6 @@ void TitleScene::draw() {
 	}
 	for (int cnt = 0; cnt < BLOCKS; cnt++)
 		nodeMgr.block[cnt].draw();
+
 	DrawFormatString(100, 80, GetColor(255, 255, 255), "距離：%d x:%.0f y:%.0f", _player.distance(&_goal),_player.x,_player.y);	//ゴールまでの距離と現在地	
 }

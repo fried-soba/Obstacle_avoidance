@@ -48,7 +48,7 @@ public:
 	bool checkHit(float x, float y);
 	void checkGoal(int g_x, int g_y);
 	int distance(Goal *goal);
-	vector<Point> root;	//探索後のルートを別クラスから受けとるポインタ
+	vector<Point>* root;	//探索後のルートを別クラスから受けとるポインタ
 };
 
 class Human :public Mover {

@@ -39,8 +39,8 @@ void Player::update(Goal *goal) {
 	checkGoal(goal->x, goal->y);
 	
 	//経路rootは逆側に格納されているのでイテレーターも逆に辿ることで初期位置から動く
-	static auto itr = root.rbegin();
-	if (itr < root.rend()) {
+	static auto itr = root->rbegin();
+	if (itr < root->rend()) {
 		x = (float)itr->x;
 		y = (float)itr->y;
 		itr++;
