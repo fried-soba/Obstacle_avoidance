@@ -72,7 +72,6 @@ void SquareBlock::giveGrid(Node** grid)
 	}
 }
 
-
 NodeManager::NodeManager() {}
 
 void NodeManager::Initialize(Player player, Goal goal) {
@@ -83,7 +82,7 @@ void NodeManager::Initialize(Player player, Goal goal) {
 
 	//仮想スタートノード
 	Node _start;
-	_start.x = player.x;	_start.y = player.y;
+	_start.x = (int)player.x;	_start.y = (int)player.y;
 
 	//グリッドに座標を指定しゴール地点までの距離を計算
 	for (int height = 0; height < Define::WIN_H; height++) {
@@ -110,7 +109,13 @@ void NodeManager::Initialize(Player player, Goal goal) {
 	goal_y = goal.y;
 
 	//スタートノードをオープンリストへ
-	openList.push(&grid[(int)player.y][(int)player.x]);
+	openList.push(&grid[_start.y][_start.x]);
+}
+
+//隣接ノードの移動コスト
+float NodeManager::moveCost(int x_diff, int y_diff) {
+	//縦横のノードは距離1、斜めならルート2
+	return (x_diff == 0 || y_diff == 0) ? 1.0 : sqrtf(2.0);
 }
 
 eResult NodeManager::search(Node* center) {
@@ -142,32 +147,28 @@ eResult NodeManager::search(Node* center) {
 				if (!(cnt_x == 0 && cnt_y == 0)) {
 					//子ノードの座標を決定
 					Node* child = &grid[center->y + cnt_y][center->x + cnt_x];
+					child->g_Cost = (center->score - center->toGoalDistance) + child->toGoalDistance + moveCost(cnt_x, cnt_y);
+
 					switch (child->status) {
 					case None:
 						child->status = Open;
-						child->parent = center;
-						if (cnt_x == 0 || cnt_y == 0)
-							child->g_Cost = center->g_Cost + 1;			//縦横の子は実コストは親に1加算
-						else
-							child->g_Cost = center->g_Cost + sqrtf(2);	//斜めの子は実コストは親にルート2加算
 						openList.push(child);
+						child->parent = center;
+						child->score = child->g_Cost;
+						//child->g_Cost = center->g_Cost + moveCost(cnt_x, cnt_y);
 						break;
 					case Open:
-						/*
-						//g_Costを弄るべきかは経路見て今後判断
-						if (center->suppositionScore > child->suppositionScore)
-							child->parent = center->parent;
-						//書き換えた子のノードのコストをどうする？1？ルート2？
-						*/
+						if (child->g_Cost < child->score) {
+							child->score = child->g_Cost;
+							child->parent = center;
+						}
 						break;
 					case Close:
-						/*
-						if (center->suppositionScore > child->suppositionScore) {
-							child->parent = center->parent;
-							center->suppositionScore = child->suppositionScore;
+						if (child->g_Cost < child->score) {
+							child->score = child->g_Cost;
 							child->status = Open;
+							child->parent = center;
 						}
-						*/
 						break;
 					}
 				}

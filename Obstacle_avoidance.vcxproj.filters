@@ -1,0 +1,107 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="src\Looper.cpp" />
+    <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\SystemMain.cpp" />
+    <ClCompile Include="src\Node.cpp">
+      <Filter>Node</Filter>
+    </ClCompile>
+    <ClCompile Include="src\TitleScene.cpp">
+      <Filter>TitleScene</Filter>
+    </ClCompile>
+    <ClCompile Include="src\AI.cpp">
+      <Filter>AI</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Define.cpp">
+      <Filter>Common</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Error.cpp">
+      <Filter>Common</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Fps.cpp">
+      <Filter>Common</Filter>
+    </ClCompile>
+    <ClCompile Include="src\GameScene.cpp">
+      <Filter>Game</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Parameter.cpp">
+      <Filter>Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="src\AbstractScene.cpp">
+      <Filter>Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="src\CalcUtils.cpp">
+      <Filter>Utils</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\Looper.h" />
+    <ClInclude Include="src\SystemMain.h" />
+    <ClInclude Include="src\Node.h">
+      <Filter>Node</Filter>
+    </ClInclude>
+    <ClInclude Include="src\TitleScene.h">
+      <Filter>TitleScene</Filter>
+    </ClInclude>
+    <ClInclude Include="src\AI.h">
+      <Filter>AI</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Define.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Error.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Fps.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="src\GameScene.h">
+      <Filter>Game</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Macro.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="src\eScene.h">
+      <Filter>Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Parameter.h">
+      <Filter>Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="src\AbstractScene.h">
+      <Filter>Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="src\IOnSceneChangedListener.h">
+      <Filter>Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="src\CalcUtils.h">
+      <Filter>Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Task.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Node">
+      <UniqueIdentifier>{914728b2-802e-4203-bb0c-27d3a5b2824a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="TitleScene">
+      <UniqueIdentifier>{bd3a0c8d-857f-4452-8f0d-0db048e2977a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="AI">
+      <UniqueIdentifier>{f4517bd5-b4aa-4be4-9fa8-b8c16802d218}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Common">
+      <UniqueIdentifier>{df7217c9-8fd8-4fa3-82cd-2fe6b381d781}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Game">
+      <UniqueIdentifier>{a0a7d710-2315-4db9-b39f-6a7963791358}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Scene">
+      <UniqueIdentifier>{6b7832b7-31ae-4c59-8c32-7609e6dbdf9a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Utils">
+      <UniqueIdentifier>{5631b018-c6aa-4562-bfa0-f2c732996934}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>
