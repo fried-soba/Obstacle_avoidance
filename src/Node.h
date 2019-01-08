@@ -25,15 +25,13 @@ public:
 	~Node() = default;
 	eStatus status;
 	int x, y;					//ノード座標
-	float fromStartDistance;	//スタート地点からの直線距離（ 仮想g(n) ）
-	float toGoalDistance;		//推定コストその1：ゴール地点までの直線距離（ 仮想h(n) ）
-	float suppositionScore;		//ノードを経由したS-G間の距離（仮想f(n)）
-	float g_Cost;
+	float g;					//実コスト
+	float h;					//推定コスト
 	float i_Cost;				//推定コストその2：InfluenceMapで計算する
-	float score;				//コスト合計値 f*
+	float score;				//コスト合計値 f
 
 	Node *parent;			//親ノードのポインタ
-	void calcDistance(Node start, Goal goal);
+	void calc_hCost(Goal goal);
 	void calcScore();		//合計スコアを計算
 };
 

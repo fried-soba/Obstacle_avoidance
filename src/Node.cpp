@@ -9,29 +9,20 @@ using namespace std;
 Node::Node() {
 	status = None;
 	parent = nullptr;
-	g_Cost = i_Cost = 0;
-	score = 0;
+	score = g = i_Cost = 0;
 }
 
-void Node::calcDistance(Node start, Goal goal) {
-	//直線距離でf*(n)=g*(h)+h*(n)を計算
-	fromStartDistance= sqrtf((float)(pow(x - start.x, 2.0) + pow(y - start.y, 2.0)));
-	toGoalDistance = sqrtf((float)(pow(x - goal.x, 2.0) + pow(y - goal.y, 2.0)));
-	suppositionScore = fromStartDistance + toGoalDistance;
+//推定コストの計算
+void Node::calc_hCost(Goal goal) {
+	//ユークリッド距離の場合
+	h = sqrtf((float)(pow(x - goal.x, 2.0) + pow(y - goal.y, 2.0)));
 
-	//x軸,y軸の差の和をとってみる
-	//toGoalDistance = fabsf(x - goal_x) + fabsf(y - goal_x);
-
-	/*//x軸,y軸の差のうち、大きい方を取る
-	float tx = fabsf(goal_x - x);
-	float ty = fabsf(goal_y - y);
-	if (tx > ty)
-		toGoalDistance = tx;
-	toGoalDistance = ty;*/
+	//マンハッタン距離の場合
+	//h = fabsf(x - goal.x) + fabsf(y - goal.y);
 }
 
 void Node::calcScore(){
-	score = (g_Cost + toGoalDistance/*+i_Cost*/);	//影響度計算が実装したら合計コストに含める
+	score = (g + h /* + i_Cost */);	//影響度計算が実装したら合計コストに含める
 }
 
 SquareBlock::SquareBlock() {
@@ -66,9 +57,11 @@ void SquareBlock::draw() {
 void SquareBlock::giveGrid(Node** grid)
 {
 	_grid = grid;
-	for (int cnt_y = y; cnt_y < y_end; cnt_y++) {
-		for (int cnt_x = x; cnt_x < x_end; cnt_x++)
-			_grid[cnt_y][cnt_x].status = Block;
+
+	//ブロック内の全てのノードのステータスを進入不可にする
+	for (int column = y; column < y_end; column++) {
+		for (int row = x; row < x_end; row++)
+			_grid[column][row].status = Block;
 	}
 }
 
@@ -76,8 +69,8 @@ NodeManager::NodeManager() {}
 
 void NodeManager::Initialize(Player player, Goal goal) {
 	//Nodeの領域を動的生成
-	for (int cnt = 0; cnt < Define::WIN_H; cnt++) {
-		grid[cnt] = new Node[Define::WIN_W];
+	for (int column = 0; column < Define::WIN_H; column++) {
+		grid[column] = new Node[Define::WIN_W];
 	}
 
 	//仮想スタートノード
@@ -89,7 +82,7 @@ void NodeManager::Initialize(Player player, Goal goal) {
 		for (int width = 0; width < Define::WIN_W; width++) {
 			grid[height][width].y = height;
 			grid[height][width].x = width;
-			grid[height][width].calcDistance(_start, goal);
+			grid[height][width].calc_hCost(goal);
 		}
 	}
 
@@ -115,19 +108,13 @@ void NodeManager::Initialize(Player player, Goal goal) {
 //隣接ノードの移動コスト
 float NodeManager::moveCost(int x_diff, int y_diff) {
 	//縦横のノードは距離1、斜めならルート2
-	return (x_diff == 0 || y_diff == 0) ? 1.0 : sqrtf(2.0);
+	return (x_diff == 0 || y_diff == 0) ? (float)1 : sqrtf(2.0);
 }
 
 eResult NodeManager::search(Node* center) {
 	float ng;	//子ノードの合計コスト候補
 
-	//実コストの計算
-	if (center->parent == nullptr) {
-		center->g_Cost = 0;		//親がいない＝スタート地点なので実コスト0
-		center->calcScore();
-	}
-
-	//（ここに影響度の計算）
+	//（ここで影響度の計算）
 
 
 	while (!openList.empty()) {
@@ -143,14 +130,15 @@ eResult NodeManager::search(Node* center) {
 		openList.pop();
 
 		//周辺の8つを子ノードとしてオープンリストに入れる
-		for (int cnt_x = -1; cnt_x <= 1; cnt_x++) {
-			for (int cnt_y = -1; cnt_y <= 1; cnt_y++) {
+		for (int diff_row = -1; diff_row <= 1; diff_row++) {
+			for (int diff_column = -1; diff_column <= 1; diff_column++) {
 				//中央ノードは処理から除外する
-				if (!(cnt_x == 0 && cnt_y == 0)) {
+				if (!(diff_row == 0 && diff_column == 0)) {
 					//子ノードの座標を決定
-					Node* child = &grid[center->y + cnt_y][center->x + cnt_x];
+					Node* child = &grid[center->y + diff_column][center->x + diff_row];
+
 					//子ノードの合計コスト候補の計算
-					ng = (center->score - center->toGoalDistance) + child->toGoalDistance + moveCost(cnt_x, cnt_y);
+					ng = (center->score - center->h) + child->h + moveCost(diff_row, diff_column);
 
 					switch (child->status) {
 					case None:
@@ -158,14 +146,13 @@ eResult NodeManager::search(Node* center) {
 						openList.push(child);
 						child->parent = center;
 						child->score = ng;
-						//ng = center->g_Cost + moveCost(cnt_x, cnt_y);
 						break;
 					case Open:
 						if (ng < child->score) {
 							child->score = ng;
 							child->parent = center;
 
-							//コストが変更されたのでオープンリスト内を再ソートする
+							//コストが変更されたのでオープンリスト内を再ソート
 							openList.pop();
 							openList.push(child);
 						}
@@ -174,8 +161,9 @@ eResult NodeManager::search(Node* center) {
 						if (ng < child->score) {
 							child->score = ng;
 							child->parent = center;
-							child->status = Open;
 
+							//オープンリストに戻す
+							child->status = Open;
 							openList.push(child);
 						}
 						break;
