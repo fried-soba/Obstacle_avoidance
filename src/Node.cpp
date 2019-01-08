@@ -119,6 +119,8 @@ float NodeManager::moveCost(int x_diff, int y_diff) {
 }
 
 eResult NodeManager::search(Node* center) {
+	float ng;	//子ノードの合計コスト候補
+
 	//実コストの計算
 	if (center->parent == nullptr) {
 		center->g_Cost = 0;		//親がいない＝スタート地点なので実コスト0
@@ -147,27 +149,34 @@ eResult NodeManager::search(Node* center) {
 				if (!(cnt_x == 0 && cnt_y == 0)) {
 					//子ノードの座標を決定
 					Node* child = &grid[center->y + cnt_y][center->x + cnt_x];
-					child->g_Cost = (center->score - center->toGoalDistance) + child->toGoalDistance + moveCost(cnt_x, cnt_y);
+					//子ノードの合計コスト候補の計算
+					ng = (center->score - center->toGoalDistance) + child->toGoalDistance + moveCost(cnt_x, cnt_y);
 
 					switch (child->status) {
 					case None:
 						child->status = Open;
 						openList.push(child);
 						child->parent = center;
-						child->score = child->g_Cost;
-						//child->g_Cost = center->g_Cost + moveCost(cnt_x, cnt_y);
+						child->score = ng;
+						//ng = center->g_Cost + moveCost(cnt_x, cnt_y);
 						break;
 					case Open:
-						if (child->g_Cost < child->score) {
-							child->score = child->g_Cost;
+						if (ng < child->score) {
+							child->score = ng;
 							child->parent = center;
+
+							//コストが変更されたのでオープンリスト内を再ソートする
+							openList.pop();
+							openList.push(child);
 						}
 						break;
 					case Close:
-						if (child->g_Cost < child->score) {
-							child->score = child->g_Cost;
-							child->status = Open;
+						if (ng < child->score) {
+							child->score = ng;
 							child->parent = center;
+							child->status = Open;
+
+							openList.push(child);
 						}
 						break;
 					}
