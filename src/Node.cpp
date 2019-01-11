@@ -41,11 +41,11 @@ SquareBlock::SquareBlock() {
 	}
 	if (x_end > Define::WIN_W * 4 / 5) {
 		x_end = Define::WIN_W * 4 / 5 - 1;
-		printfDx("ブロックがゴールに重なりそうなので修正したよ\n");
+		//printfDx("ブロックがゴールに重なりそうなので修正したよ\n");
 	}
 	if (y_end > Define::WIN_H) {
 		y_end = Define::WIN_H - 1;
-		printfDx("ブロックがy軸をはみ出したので修正したよ\n");
+		//printfDx("ブロックがy軸をはみ出したので修正したよ\n");
 	}
 	color = GetColor(GetRand(255), GetRand(255), GetRand(255));
 }
@@ -67,15 +67,18 @@ void SquareBlock::giveGrid(Node** grid)
 
 NodeManager::NodeManager() {}
 
-void NodeManager::Initialize(Player player, Goal goal) {
+void NodeManager::Initialize(Player *_player, Goal goal, Human *_human) {
+	//別クラスの自機と人を使う為にポインタを受け取る
+	human = _human;
+	player = _player;
+
 	//Nodeの領域を動的生成
 	for (int column = 0; column < Define::WIN_H; column++) {
 		grid[column] = new Node[Define::WIN_W];
 	}
-
 	//仮想スタートノード
 	Node _start;
-	_start.x = (int)player.x;	_start.y = (int)player.y;
+	_start.x = (int)player->x;	_start.y = (int)player->y;
 
 	//グリッドに座標を指定しゴール地点までの距離を計算
 	for (int height = 0; height < Define::WIN_H; height++) {
@@ -112,17 +115,24 @@ float NodeManager::moveCost(int x_diff, int y_diff) {
 }
 
 eResult NodeManager::search(Node* center) {
-	float ng;	//子ノードの合計コスト候補
-
-	//（ここで影響度の計算）
-
+	float ng;				//子ノードの合計コスト候補
+	int loop_cnt = 0;		//探索のループ回数
+	int limit = 40 * 40;	//ループ回数の上限（要調整）
 
 	while (!openList.empty()) {
 		//オープンリストtopにゴール座標が来る場合は成功
 		if (openList.top()->x == goal_x && openList.top()->y == goal_y) {
 			printfDx("探索が完了しました\n");
+			root.clear();
 			getPath(openList.top());
 			return arrival;
+		}
+
+		//探索回数が上限に達したら結果を保存して中断
+		if (loop_cnt > limit) {
+			getPath(openList.top());
+			clearList();
+			return unReach;
 		}
 
 		//親ノードをオープンリストからpop
@@ -140,6 +150,9 @@ eResult NodeManager::search(Node* center) {
 					//子ノードの合計コスト候補の計算
 					ng = (center->score - center->h) + child->h + moveCost(diff_row, diff_column);
 
+					//InfluenceMapによる追加コストを計算
+					ng += calcIM_cost(child);
+
 					switch (child->status) {
 					case None:
 						child->status = Open;
@@ -152,7 +165,7 @@ eResult NodeManager::search(Node* center) {
 							child->score = ng;
 							child->parent = center;
 
-							//コストが変更されたのでオープンリスト内を再ソート
+							//コストが変更されたので再挿入による再ソート
 							openList.pop();
 							openList.push(child);
 						}
@@ -172,6 +185,7 @@ eResult NodeManager::search(Node* center) {
 			}
 		}
 		center = openList.top();
+		loop_cnt++;
 	}
 	printfDx("ルートが見つかりませんでした\n");
 	return notFound;
@@ -186,15 +200,51 @@ void NodeManager::getPath(Node* _goal) {
 		_goal = _goal->parent;
 	}
 	printfDx("経路を取得・格納しました。\n");
+	player->root = &root;
+	player->itr = root.rbegin();
 	return;
 }
 
-//リスト中のノードのステータスとコストを初期化して全てpopする
-void NodeManager::clear(priority_queue<Node*, vector<Node*>, NodeCompare> list) {
-	Node* node;
-	node = list.top();
-	while (!list.empty()) {
-		list.pop();
+//InfluenceMapによるコスト計算
+float NodeManager::calcIM_cost(Node* node){
+	//円形領域と三角形領域の危険度
+	float Dci = 0, Dtr = 0;
+	const float Ctr2 = tan(20);	//三角形領域の角度を決める定数
+
+	for (int cnt = 0; cnt < HUMAN; cnt++) {
+		//人と自機の相対距離の軸成分の距離
+		static float dx, dy;
+		dx = human[cnt].x - node->x;
+		dy = human[cnt].y - node->y;
+		//円形領域のコスト
+		Dci += Imax * max(0.0, 1 - (pow(dx, 2.0) + pow(dy, 2.0))
+			/ (pow((player->radius + human[cnt].radius), 2.0) + pow(Cci, 2.0)));
+		//三角形領域のコスト
+		static float m = 0.0, s = 0.0;
+		static float vx2vy2 = pow(human[cnt].vx, 2.0) + pow(human[cnt].vy, 2.0);
+		m = (human[cnt].vx*dx + human[cnt].vy*dy) / vx2vy2;
+		s = (-human[cnt].vy*dx + human[cnt].vx*dy) / vx2vy2;
+		Dtr += Imax * max(0, 1 - m / Dtr)*max(0, 1 - abs(s) / m * Ctr2);
 	}
-	list.push(node);
+
+	return IMw*max(Dci, Dtr);
+}
+
+//リスト中のノードのステータスとコストを初期化して全てpopする
+void NodeManager::clearList() {
+	Node *playerLocation, *tmp;
+	playerLocation = openList.top();
+	while (!openList.empty()) {
+		tmp = openList.top();
+		tmp->score = tmp->g = tmp->i_Cost = 0;
+		tmp->status = None;
+		openList.pop();
+	}
+	while (!closeList.empty()) {
+		tmp = closeList.top();
+		tmp->score = tmp->g = tmp->i_Cost = 0;
+		tmp->status = None;
+		closeList.pop();
+	}
+	openList.push(playerLocation);
 }

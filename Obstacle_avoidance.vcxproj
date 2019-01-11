@@ -98,7 +98,7 @@
     <ClCompile Include="src\Node.cpp" />
     <ClCompile Include="src\Parameter.cpp" />
     <ClCompile Include="src\SystemMain.cpp" />
-    <ClCompile Include="src\TitleScene.cpp" />
+    <ClCompile Include="src\TopScene.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\AbstractScene.h" />
@@ -116,7 +116,7 @@
     <ClInclude Include="src\Parameter.h" />
     <ClInclude Include="src\SystemMain.h" />
     <ClInclude Include="src\Task.h" />
-    <ClInclude Include="src\TitleScene.h" />
+    <ClInclude Include="src\TopScene.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

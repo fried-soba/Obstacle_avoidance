@@ -1,5 +1,5 @@
 #include "Looper.h"
-#include "TitleScene.h"
+#include "TopScene.h"
 #include "Error.h"
 #include "GameScene.h"
 #include "Macro.h"
@@ -9,7 +9,7 @@ using namespace std;
 Looper::Looper()
 {
     Parameter parameter;
-    _sceneStack.push(make_shared<TitleScene>(this, parameter)); //タイトル画面シーンを作ってpush
+    _sceneStack.push(make_shared<TopScene>(this, parameter)); //タイトル画面シーンを作ってpush
 }
 /*!
 @brief スタックのトップのシーンの処理をする
@@ -38,7 +38,7 @@ void Looper::onSceneChanged(const eScene scene, const Parameter& parameter, cons
     }
     switch (scene) {
     case Title:
-        _sceneStack.push(make_shared<TitleScene>(this, parameter));
+        _sceneStack.push(make_shared<TopScene>(this, parameter));
         break;
     case Game:
         _sceneStack.push(make_shared<GameScene>(this, parameter));

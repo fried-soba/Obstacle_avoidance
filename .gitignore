@@ -1,5 +1,6 @@
 .VS/
 Debug/
+Release/
 *.user
 *.suo
 PopResult.txt

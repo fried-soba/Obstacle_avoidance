@@ -1,6 +1,7 @@
 #include <DxLib.h>
 #include "Fps.h"
 #include "CalcUtils.h"
+#include "Define.h"
 
 const static int LIST_LEN_MAX = 120;	//最大120フレームで待機処理を計算する(2以上にする)
 const static int FPS = 60;			    //FPS
@@ -25,7 +26,7 @@ void Fps::draw() const
     if (_fps == 0) {
         return;
     }
-    DrawFormatString(0, 0, GetColor(255, 255, 255), "%04.1ffps", _fps);
+	DrawFormatString(Define::WIN_W - 160, 0, GetColor(255, 255, 255), "%04.1ffps", _fps);
 }
 
 void Fps::regist()

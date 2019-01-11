@@ -7,9 +7,6 @@
     <ClCompile Include="src\Node.cpp">
       <Filter>Node</Filter>
     </ClCompile>
-    <ClCompile Include="src\TitleScene.cpp">
-      <Filter>TitleScene</Filter>
-    </ClCompile>
     <ClCompile Include="src\AI.cpp">
       <Filter>AI</Filter>
     </ClCompile>
@@ -34,15 +31,15 @@
     <ClCompile Include="src\CalcUtils.cpp">
       <Filter>Utils</Filter>
     </ClCompile>
+    <ClCompile Include="src\TopScene.cpp">
+      <Filter>TopScene</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Looper.h" />
     <ClInclude Include="src\SystemMain.h" />
     <ClInclude Include="src\Node.h">
       <Filter>Node</Filter>
-    </ClInclude>
-    <ClInclude Include="src\TitleScene.h">
-      <Filter>TitleScene</Filter>
     </ClInclude>
     <ClInclude Include="src\AI.h">
       <Filter>AI</Filter>
@@ -80,13 +77,13 @@
     <ClInclude Include="src\Task.h">
       <Filter>Common</Filter>
     </ClInclude>
+    <ClInclude Include="src\TopScene.h">
+      <Filter>TopScene</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Node">
       <UniqueIdentifier>{914728b2-802e-4203-bb0c-27d3a5b2824a}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="TitleScene">
-      <UniqueIdentifier>{bd3a0c8d-857f-4452-8f0d-0db048e2977a}</UniqueIdentifier>
     </Filter>
     <Filter Include="AI">
       <UniqueIdentifier>{f4517bd5-b4aa-4be4-9fa8-b8c16802d218}</UniqueIdentifier>
@@ -102,6 +99,9 @@
     </Filter>
     <Filter Include="Utils">
       <UniqueIdentifier>{5631b018-c6aa-4562-bfa0-f2c732996934}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="TopScene">
+      <UniqueIdentifier>{bd3a0c8d-857f-4452-8f0d-0db048e2977a}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

@@ -30,7 +30,7 @@ public:
 	unsigned int color;
 	float x, y;		//中心座標
 	float angle;	//方位角：進行方向の角度(ラジアン表記)
-	float speed, xSpeed, ySpeed;	//移動速度
+	float speed, vx, vy;	//移動速度
 	void stop();
 };
 
@@ -48,7 +48,8 @@ public:
 	bool checkHit(float x, float y);
 	void checkGoal(int g_x, int g_y);
 	int distance(Goal *goal);
-	vector<Point>* root;	//探索後のルートを別クラスから受けとるポインタ
+	vector<Point>* root;							//探索後のルートを別クラスから受けとるポインタ
+	reverse_iterator<vector<Point>::iterator> itr;	//ルートの現在地を保持する逆イテレータ
 };
 
 class Human :public Mover {
@@ -58,12 +59,10 @@ private:
 	int red, green, blue;
 public:
 	float x, y;
-	bool outside;
 	Human();
 	void reset();
 	void update();
 	void draw();
-	void exorbitant();
 	//To do:人同士がぶつからないように判定する関数を作る
 };
 

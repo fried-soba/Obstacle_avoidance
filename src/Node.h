@@ -3,7 +3,6 @@
 #include "AI.h"
 #include "Define.h"
 #include <queue>
-#define BLOCKS 10      	//適当に配置する静的障害物の数
 
 enum eStatus {
 	None,
@@ -60,13 +59,17 @@ public:
 	~NodeManager() = default;
 	int goal_x, goal_y;
 	int get_goal = false;
-	void Initialize(Player player, Goal goal);
+	void Initialize(Player *player, Goal goal,Human *human);
 	float moveCost(int x_diff, int y_diff);
 	eResult search(Node* node);
 	void getPath(Node *goal);
-	void clear(priority_queue<Node*, vector<Node*>, NodeCompare> list);
-	priority_queue<Node*, vector<Node*>, NodeCompare> openList;			//ノードのポインタを格納する優先度付きキュー、ソートは昇順
+	void clearList();
+	float calcIM_cost(Node* node);
+
+	priority_queue<Node*, vector<Node*>, NodeCompare> openList, closeList;	//ノードのポインタを格納する優先度付きキュー、ソートは昇順
 	vector<Point> root;														//探索経路を格納する配列
 	Node **grid = new Node*[Define::WIN_H];
+	Human *human;
+	Player *player;
 	SquareBlock block[BLOCKS];
 };

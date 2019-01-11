@@ -5,7 +5,7 @@
 #include "AI.h"
 
 void Mover::stop() {
-	xSpeed = ySpeed = 0;
+	vx = vy = 0;
 }
 Player::Player() {
 	radius = 20;
@@ -18,8 +18,8 @@ Player::Player() {
  	x = (float)GetRand(Define::WIN_W / 5);
 	y = (float)GetRand(Define::WIN_H);
 	angle = (float)(330 + GetRand(30))*Define::PI / 180;
-	xSpeed = (float)speed * cosf(angle);
-	ySpeed = (float)speed * sinf(angle);
+	vx = (float)speed * cosf(angle);
+	vy = (float)speed * sinf(angle);
 	color = GetColor(255, 255, 255);
 	hitStatus = false;
 }
@@ -27,8 +27,8 @@ void Player::reset(){
 	x = (float)GetRand(Define::WIN_W / 5);
 	y = (float)GetRand(Define::WIN_H);
 	angle = (float)(330 + GetRand(30))*Define::PI / 180;
-	xSpeed = speed * cosf(angle);
-	ySpeed = speed * sinf(angle);
+	vx = speed * cosf(angle);
+	vy = speed * sinf(angle);
 	color = GetColor(255, 255, 255);
 	hitStatus = false;
 }
@@ -39,11 +39,12 @@ void Player::update(Goal *goal) {
 	checkGoal(goal->x, goal->y);
 	
 	//åoòHrootÇÕãtë§Ç…äiî[Ç≥ÇÍÇƒÇ¢ÇÈÇÃÇ≈ÉCÉeÉåÅ[É^Å[Ç‡ãtÇ…íHÇÈÇ±Ç∆Ç≈èâä˙à íuÇ©ÇÁìÆÇ≠
-	static auto itr = root->rbegin();
-	if (itr < root->rend()) {
-		x = (float)itr->x;
-		y = (float)itr->y;
-		itr++;
+	if (!root->empty()) {
+		if (itr < root->rend()) {
+			x = (float)itr->x;
+			y = (float)itr->y;
+			itr++;
+		}
 	}
 }
 void Player::draw() {
@@ -97,35 +98,29 @@ void Human::reset() {
 	x = (float)Define::WIN_W / 3 + GetRand(Define::WIN_W) / 3;
 	y = (float)radius;
 	angle = (float)(260 + GetRand(20))*Define::PI / 180;
-	xSpeed = (float)speed * cosf(angle);
-	ySpeed = (float)speed * sinf(angle);
+	vx = speed * cosf(angle);
+	vy = speed * sinf(angle);
 	color = GetColor(GetRand(255), GetRand(255), GetRand(255));
-	outside = false;
 }
 
 void Human::update() {
-	//âÊñ â∫Ç…êˆÇ¡ÇΩèÍçáÇ…è¡Ç∑èÄîı
+	//âÊñ â∫Ç…êˆÇ¡ÇΩèÍçáÇ…âÊñ è„Ç…ñﬂÇ∑
 	if (y - radius >= Define::WIN_H)
-		outside = true;
+		reset();
 
 	if (x - radius <= 0 || x + radius >= Define::WIN_W)
-		xSpeed = -xSpeed;
+		vx = -vx;
 	if (y - radius <= 0 /*|| y + radius >= Define::WIN_H*/)
-		ySpeed = -ySpeed;
-	x += xSpeed;
-	y += ySpeed;
+		vy = -vy;
+	x += vx;
+	y += vy;
 }
 void Human::draw() {
 	DrawCircle((int)x, (int)y, radius, color, 1);
 	//ë¨ìx,ç¿ïWï`âÊóp
-	//DrawFormatString(100, 0, GetColor(255, 255, 255), "%5.2lf,%5.2lf", xSpeed, ySpeed);
+	//DrawFormatString(100, 0, GetColor(255, 255, 255), "%5.2lf,%5.2lf", vx, vy);
 	//DrawFormatString(100, 100, GetColor(255, 255, 255), "%6.1lf,%6.1lf", x, y);
 }
-
-void Human::exorbitant(){
-	outside = true;
-}
-
 
 Goal::Goal() {
 	size = Define::GRID_SIZE;
