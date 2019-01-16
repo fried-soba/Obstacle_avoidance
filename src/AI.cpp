@@ -3,7 +3,6 @@
 #include <DxLib.h>
 #include "Define.h"
 #include "AI.h"
-
 void Mover::stop() {
 	vx = vy = 0;
 }
@@ -37,16 +36,19 @@ void Player::update(Goal *goal) {
 	if (hitStatus)
 		return;
 	checkGoal(goal->x, goal->y);
-	
-	//Œo˜Hroot‚Í‹t‘¤‚ÉŠi”[‚³‚ê‚Ä‚¢‚é‚Ì‚ÅƒCƒeƒŒ[ƒ^[‚à‹t‚É’H‚é‚±‚Æ‚Å‰ŠúˆÊ’u‚©‚ç“®‚­
-	if (!root->empty()) {
-		if (itr < root->rend()) {
-			x = (float)itr->x;
-			y = (float)itr->y;
-			itr++;
+
+	static int cnt = 0;
+	if (flameCnt == 0)
+		cnt = 0;
+	if (!moveAmount.empty()) {
+		{
+			x += moveAmount[cnt].x;
+			y += moveAmount[cnt].y;
+			cnt++;
 		}
 	}
 }
+
 void Player::draw() {
 	DrawCircle((int)x, (int)y, radius, color, 1);
 	DrawCircle((int)x, (int)y, radius / 2, GetColor(0, 0, 0), 1);
@@ -73,12 +75,11 @@ void Player::checkGoal(int goal_x, int goal_y)
 	}
 }
 
-//³Šm‚È‹——£Zo‚Ég—p
-int Player::distance(Goal * goal)
-{
+//player‚©‚çƒS[ƒ‹‚Ü‚Å‚Ì‹——£Zo
+float Player::distance(Goal goal) {
 	float distance;
-	distance = sqrtf(powf(x - (float)(*goal).x, 2.0) + powf(y - (float)(*goal).y, 2.0));
-	return (int)distance;
+	distance = sqrtf(powf(x - (float)goal.x, 2.0) + powf(y - (float)goal.y, 2.0));
+	return distance;
 }
 
 

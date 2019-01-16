@@ -2,7 +2,6 @@
 
 #include "AI.h"
 #include "Define.h"
-#include <queue>
 
 enum eStatus {
 	None,
@@ -42,34 +41,11 @@ struct NodeCompare {
 };
 
 class SquareBlock {
+public:
 	int x, x_end;
 	int y,  y_end;
 	int thickness,length;
 	unsigned int color;
-public:
 	SquareBlock();
 	void draw();
-	void giveGrid(Node** grid);
-	Node **_grid;
-};
-
-class NodeManager{
-public:
-	NodeManager();
-	~NodeManager() = default;
-	int goal_x, goal_y;
-	int get_goal = false;
-	void Initialize(Player *player, Goal goal,Human *human);
-	float moveCost(int x_diff, int y_diff);
-	eResult search(Node* node);
-	void getPath(Node *goal);
-	void clearList();
-	float calcIM_cost(Node* node);
-
-	priority_queue<Node*, vector<Node*>, NodeCompare> openList, closeList;	//ノードのポインタを格納する優先度付きキュー、ソートは昇順
-	vector<Point> root;														//探索経路を格納する配列
-	Node **grid = new Node*[Define::WIN_H];
-	Human *human;
-	Player *player;
-	SquareBlock block[BLOCKS];
 };

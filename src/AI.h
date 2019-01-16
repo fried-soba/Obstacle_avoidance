@@ -11,8 +11,7 @@ DirectXによって単精度に変えられてしまうためdouble型は使用しない
 
 //配列にして探索の完了した座標を格納する用の構造体
 typedef struct coordinates {
-	int x;
-	int y;
+	int x,y;
 } Point;
 
 class Goal {
@@ -47,8 +46,10 @@ public:
 	void draw();
 	bool checkHit(float x, float y);
 	void checkGoal(int g_x, int g_y);
-	int distance(Goal *goal);
-	vector<Point>* root;							//探索後のルートを別クラスから受けとるポインタ
+	float distance(Goal goal);
+
+	int flameCnt;
+	vector<Point> moveAmount;
 	reverse_iterator<vector<Point>::iterator> itr;	//ルートの現在地を保持する逆イテレータ
 };
 

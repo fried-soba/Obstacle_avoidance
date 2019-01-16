@@ -14,7 +14,7 @@
     <ProjectGuid>{E3869050-39D3-40E2-9236-C1FB4ACFAF24}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>Obstacle_avoidance</RootNamespace>
-    <WindowsTargetPlatformVersion>10.0.17134.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0.17763.0</WindowsTargetPlatformVersion>
     <ProjectName>Obstacle_avoidance</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -96,6 +96,7 @@
     <ClCompile Include="src\Looper.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\Node.cpp" />
+    <ClCompile Include="src\NodeManager.cpp" />
     <ClCompile Include="src\Parameter.cpp" />
     <ClCompile Include="src\SystemMain.cpp" />
     <ClCompile Include="src\TopScene.cpp" />
@@ -113,6 +114,7 @@
     <ClInclude Include="src\Looper.h" />
     <ClInclude Include="src\Macro.h" />
     <ClInclude Include="src\Node.h" />
+    <ClInclude Include="src\NodeManager.h" />
     <ClInclude Include="src\Parameter.h" />
     <ClInclude Include="src\SystemMain.h" />
     <ClInclude Include="src\Task.h" />

@@ -1,7 +1,8 @@
 #pragma once
 
-#define HUMAN 1			//画面内を動く人間の数
-#define BLOCKS 10      	//適当に配置する静的障害物の数
+#define HUMAN 3			//画面内を動く人間の数
+#define BLOCKS 0     	//適当に配置する静的障害物の数
+#define FREQUENCY 60	//探索のフレーム頻度
 
 //InfluenceMapの計算式に用いる定数
 #define Imax 50
@@ -16,6 +17,7 @@ public:
 
     const static float PI;    //円周率
 	const static int GRID_SIZE;
+
 	//const static int GRID_X_MAX;	//横ノード数（切り上げ）
 	//const static int GRID_Y_MAX;	//縦ノード数（切り上げ）
 

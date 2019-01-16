@@ -13,24 +13,14 @@ TopScene::TopScene(IOnSceneChangedListener* impl, const Parameter& parameter) : 
 	SRand((unsigned int)time(NULL));	//Rand()のseed値をランダム化
 	flame_cnt = 0;
 	searchingResult = unReach;
-
-	nodeMgr.Initialize(&_player,_goal,_human);
-	for (int cnt = 0; cnt < BLOCKS; cnt++){
-		nodeMgr.block[cnt].giveGrid(nodeMgr.grid);
-	}
-	savePoint = &nodeMgr.grid[(int)_player.y][(int)_player.x];		//スタートノードを設定
-	//eResult result = nodeMgr.search(&nodeMgr.grid[(int)_player.y][(int)_player.x]);	//とりあえず確認用にスタートノード周辺を展開
-	//if (result == arrival)
-	//	_player.root = &nodeMgr.root;
 }
 
 void TopScene::update()
 {
-	//探索のタイミングを取るための変数
-	flame_cnt %= 60;
-
-	if (flame_cnt % 30 == 0 && searchingResult == unReach) {
-		searchingResult = nodeMgr.search(savePoint);
+	//探索のフレームタイミングを取る
+	flame_cnt %= FREQUENCY;
+	if (flame_cnt  == 0 && searchingResult == unReach) {
+		searchingResult = nodeMgr.search();
 	}
 	flame_cnt++;
 
@@ -51,15 +41,7 @@ void TopScene::update()
     }
 	*/
 
-	for (int cnt = 0; cnt < HUMAN; cnt++) {
-		_human[cnt].update();
-		if (_player.checkHit(_human[cnt].x, _human[cnt].y)) {
-			_player.stop();
-			_human[cnt].stop();
-		}
-	}
-
-	_player.update(&_goal);
+	nodeMgr.update();
 
 	//オープンリスト中のノードをtxtファイルへ書き出し
 	if (CheckHitKey(KEY_INPUT_W)) {
@@ -67,30 +49,15 @@ void TopScene::update()
 	}
 
 	if (CheckHitKey(KEY_INPUT_R)) {
-		_player.reset();
+		nodeMgr.player.reset();
 		for (int cnt = 0; cnt < HUMAN; cnt++) {
-			_human[cnt].reset();
+			nodeMgr.human[cnt].reset();
 		}
 	}
 }
 
 void TopScene::draw() {
-	_goal.draw();
-	_player.draw();
-	for (int cnt = 0; cnt < HUMAN; cnt++) {
-		_human[cnt].draw();
-	}
-	for (unsigned int cnt = 0; cnt < nodeMgr.root.size(); cnt++) {
-		int x1 = nodeMgr.root[cnt].x;
-		int y1 = nodeMgr.root[cnt].y;
-		int x2 = x1 + 1;
-		int y2 = y1 + 1;
-		DrawBox(x1, y1, x2, y2, GetColor(255, 255, 255), FALSE);
-	}
-	for (int cnt = 0; cnt < BLOCKS; cnt++)
-		nodeMgr.block[cnt].draw();
-
-	DrawFormatString(100, 80, GetColor(255, 255, 255), "距離：%d x:%.0f y:%.0f", _player.distance(&_goal),_player.x,_player.y);	//ゴールまでの距離と現在地	
+	nodeMgr.draw();	
 }
 
 void TopScene::writeOpenList() {
@@ -102,7 +69,7 @@ void TopScene::writeOpenList() {
 				printfDx("ファイルが使用中です。\n");
 				exit(1);
 			}
-			fprintf(outputfile, "ゴール座標は(%4d,%4d)\n", _goal.x, _goal.y);
+			fprintf(outputfile, "ゴール座標は(%4d,%4d)\n", nodeMgr.goal.x, nodeMgr.goal.y);
 			fprintf(outputfile, "コストの昇順でオープンリストをpushします\n");
 			fprintf(outputfile, "%d個のノードがあります。\n", nodeMgr.openList.size());
 			while (!nodeMgr.openList.empty()) {

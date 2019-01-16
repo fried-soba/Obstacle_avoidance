@@ -4,6 +4,7 @@
 #include "AI.h"
 #include "Define.h"
 #include "Node.h"
+#include "NodeManager.h"
 
 class TopScene : public AbstractScene
 {
@@ -13,12 +14,7 @@ public:
     void update() override;
     void draw();
 	void writeOpenList();
-
-	int flame_cnt;	//フレームのタイミングを取るための変数
+	int flame_cnt;
 	eResult searchingResult;
-	Node* savePoint;	//一回の探索スパンで辿り着く現在地
-	Player _player;
-	Human _human[HUMAN];
-	Goal _goal;
 	NodeManager nodeMgr;
 };

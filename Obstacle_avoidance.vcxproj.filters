@@ -34,6 +34,9 @@
     <ClCompile Include="src\TopScene.cpp">
       <Filter>TopScene</Filter>
     </ClCompile>
+    <ClCompile Include="src\NodeManager.cpp">
+      <Filter>NodeManager</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Looper.h" />
@@ -80,6 +83,9 @@
     <ClInclude Include="src\TopScene.h">
       <Filter>TopScene</Filter>
     </ClInclude>
+    <ClInclude Include="src\NodeManager.h">
+      <Filter>NodeManager</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Node">
@@ -102,6 +108,9 @@
     </Filter>
     <Filter Include="TopScene">
       <UniqueIdentifier>{bd3a0c8d-857f-4452-8f0d-0db048e2977a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="NodeManager">
+      <UniqueIdentifier>{3f7e131c-ccd9-4e6d-b30c-cab2df807420}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>
