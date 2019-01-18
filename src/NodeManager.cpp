@@ -43,6 +43,10 @@ NodeManager::NodeManager() {
 
 	//スタートノードをオープンリストへ
 	openList.push(start);
+
+	//ルートの格納する配列を動的確保
+	root = new vector<Point>;
+	player.moveAmount = new vector<Point>;
 }
 
 //隣接ノードの移動コスト
@@ -55,6 +59,7 @@ eResult NodeManager::search() {
 	float ng;												//子ノードの合計コスト候補
 	int loop_cnt = 0;										//探索のループ回数
 	int limit = 40 * 40;									//ループ回数の上限（要調整）
+	int child_x, child_y;
 	Node* center = &grid[(int)player.y][(int)player.x];		//探索開始時点の親ノード
 	openList.push(center);
 
@@ -62,7 +67,6 @@ eResult NodeManager::search() {
 		//オープンリストtopにゴール座標が来る場合は成功
 		if (openList.top()->x == goal.x && openList.top()->y == goal.y) {
 			printfDx("探索が完了しました\n");
-			root.clear();
 			getPath(*openList.top());
 			return arrival;
 		}
@@ -76,14 +80,18 @@ eResult NodeManager::search() {
 
 		//親ノードをオープンリストからpop
 		openList.top()->status = Close;
+		closeList.push(openList.top());
 		openList.pop();
 
 		//周辺の8つを子ノードとしてオープンリストに入れる
 		for (int diff_row = -1; diff_row <= 1; diff_row++) {
 			for (int diff_column = -1; diff_column <= 1; diff_column++) {
+				child_y = center->y + diff_column;
+				child_x = center->x + diff_row;
 				//中央ノードは処理から除外する
-				if (!(diff_row == 0 && diff_column == 0)) {
-					//子ノードの座標を決定
+				if (!(diff_row == 0 && diff_column == 0) && child_x < Define::WIN_W&&child_y < Define::WIN_H) {
+					//子ノードの座標
+
 					Node* child = &grid[center->y + diff_column][center->x + diff_row];
 					//子ノードの合計コスト候補の計算
 					ng = (center->score - center->h) + child->h + moveCost(diff_row, diff_column);
@@ -123,7 +131,7 @@ eResult NodeManager::search() {
 				}
 			}
 		}
-		center = openList.top();
+ 		center = openList.top();
 		loop_cnt++;
 	}
 	printfDx("ルートが見つかりませんでした\n");
@@ -131,27 +139,37 @@ eResult NodeManager::search() {
 }
 
 void NodeManager::getPath(Node _goal) {
+	//探索のたびにメモリを再確保
+	delete root;
+	root = new vector<Point>;
+
 	while (_goal.parent != nullptr) {
 		Point _tmp;
 		_tmp.x = _goal.x;
 		_tmp.y = _goal.y;
-		root.push_back(_tmp);
+		(*root).push_back(_tmp);
 		_goal = *_goal.parent;
 	}
-	printfDx("経路を取得・格納しました。\n");
+	//printfDx("経路を取得・格納しました。\n");
 	
 	//順序が逆順に入ったままなの戻す
 	Point _tmp;
-	for (int cnt = 0; cnt < root.size() / 2; cnt++) {
-		_tmp = root[cnt];
-		root[cnt] = root[root.size() - cnt - 1];
-		root[root.size() - cnt - 1] = _tmp;
+	for (int cnt = 0; cnt < root->size() / 2; cnt++) {
+		_tmp = (*root)[cnt];
+		(*root)[cnt] = (*root)[root->size() - cnt - 1];
+		(*root)[(*root).size() - cnt - 1] = _tmp;
 	}
+
+	//前回探索分のルートを表示されつづける問題解消のためにクリアしてから記録する
+	delete player.moveAmount;
+	player.moveAmount = new vector<Point>;
 	//子ノードへ移る移動量を親に記録する
-	for (int cnt = 0; cnt < root.size() - 2; cnt++) {
-		_tmp.x= root[cnt + 1].x - root[cnt].x;
-		_tmp.y= root[cnt + 1].y - root[cnt].y;
-		player.moveAmount.push_back(_tmp);
+	if ((*root).size() > 2) {
+		for (int cnt = 0; cnt < root->size() - 2; cnt++) {
+			_tmp.x = (*root)[cnt + 1].x - (*root)[cnt].x;
+			_tmp.y = (*root)[cnt + 1].y - (*root)[cnt].y;
+			(*player.moveAmount).push_back(_tmp);
+		}
 	}
 	return;
 }
@@ -187,6 +205,7 @@ void NodeManager::update() {
 	flame_cnt %= FREQUENCY;
 	player.flameCnt = flame_cnt;
 	
+	//動的オブジェクトの位置更新
 	player.update(&goal);
 	for (int cnt = 0; cnt < HUMAN; cnt++) {
 		human[cnt].update();
@@ -207,9 +226,9 @@ void NodeManager::draw() {
 		block[cnt].draw();
 
 	//探索経路のルート表示
-	for (unsigned int cnt = 0; cnt < root.size(); cnt++) {
-		int x = root[cnt].x;
-		int y = root[cnt].y;
+	for (unsigned int cnt = 0; cnt < root->size(); cnt++) {
+		int x = (*root)[cnt].x;
+		int y = (*root)[cnt].y;
 		DrawBox(x, y, ++x, ++y, GetColor(255, 255, 255), FALSE);
 	}
 	//ゴールまでの距離と現在地を表示

@@ -21,6 +21,8 @@ Player::Player() {
 	vy = (float)speed * sinf(angle);
 	color = GetColor(255, 255, 255);
 	hitStatus = false;
+
+	//moveAmount = new vector<Point>;
 }
 void Player::reset(){
 	x = (float)GetRand(Define::WIN_W / 5);
@@ -40,10 +42,10 @@ void Player::update(Goal *goal) {
 	static int cnt = 0;
 	if (flameCnt == 0)
 		cnt = 0;
-	if (!moveAmount.empty()) {
+	if (!moveAmount->empty() && cnt < moveAmount->size()) {
 		{
-			x += moveAmount[cnt].x;
-			y += moveAmount[cnt].y;
+			x += (*moveAmount)[cnt].x;
+			y += (*moveAmount)[cnt].y;
 			cnt++;
 		}
 	}
@@ -118,9 +120,6 @@ void Human::update() {
 }
 void Human::draw() {
 	DrawCircle((int)x, (int)y, radius, color, 1);
-	//ë¨ìx,ç¿ïWï`âÊóp
-	//DrawFormatString(100, 0, GetColor(255, 255, 255), "%5.2lf,%5.2lf", vx, vy);
-	//DrawFormatString(100, 100, GetColor(255, 255, 255), "%6.1lf,%6.1lf", x, y);
 }
 
 Goal::Goal() {

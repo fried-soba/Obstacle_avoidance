@@ -19,7 +19,7 @@ void TopScene::update()
 {
 	//探索のフレームタイミングを取る
 	flame_cnt %= FREQUENCY;
-	if (flame_cnt  == 0 && searchingResult == unReach) {
+	if (flame_cnt == 0 && searchingResult == unReach && nodeMgr.player.hitStatus == false) {
 		searchingResult = nodeMgr.search();
 	}
 	flame_cnt++;

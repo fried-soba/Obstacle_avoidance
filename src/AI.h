@@ -35,7 +35,6 @@ public:
 
 class Player: public Mover {
 private:
-	bool hitStatus;
 	int red, green, blue;
 	
 public:
@@ -48,9 +47,9 @@ public:
 	void checkGoal(int g_x, int g_y);
 	float distance(Goal goal);
 
+	bool hitStatus;
 	int flameCnt;
-	vector<Point> moveAmount;
-	reverse_iterator<vector<Point>::iterator> itr;	//ルートの現在地を保持する逆イテレータ
+	vector<Point>* moveAmount;						//探索したルートの次ノードへの移動量を保持する配列
 };
 
 class Human :public Mover {
