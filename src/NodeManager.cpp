@@ -61,6 +61,7 @@ eResult NodeManager::search() {
 	int limit = 40 * 40;									//ループ回数の上限（要調整）
 	int child_x, child_y;
 	Node* center = &grid[(int)player.y][(int)player.x];		//探索開始時点の親ノード
+	clearList();
 	openList.push(center);
 
 	while (!openList.empty()) {
@@ -70,11 +71,10 @@ eResult NodeManager::search() {
 			getPath(*openList.top());
 			return arrival;
 		}
-
 		//探索回数が上限に達したら結果を保存して中断
 		if (loop_cnt > limit) {
 			getPath(*openList.top());
-			clearList();
+			//clearList();
 			return unReach;
 		}
 
@@ -89,7 +89,7 @@ eResult NodeManager::search() {
 				child_y = center->y + diff_column;
 				child_x = center->x + diff_row;
 				//中央ノードは処理から除外する
-				if (!(diff_row == 0 && diff_column == 0) && child_x < Define::WIN_W&&child_y < Define::WIN_H) {
+				if (!(diff_row == 0 && diff_column == 0) && child_x < Define::WIN_W && child_y < Define::WIN_H) {
 					//子ノードの座標
 
 					Node* child = &grid[center->y + diff_column][center->x + diff_row];
@@ -112,9 +112,9 @@ eResult NodeManager::search() {
 							child->parent = center;
 
 							//コストが変更されたので再挿入による再ソート
-							openList.pop();
+							//openList.pop();
 							openList.push(child);
-							//優先度付きキューはヒープソートであるため綺麗にソートされてない：要検討課題
+							//既にオープンだが重複登録を許すことで整列性を保つ
 						}
 						break;
 					case Close:
@@ -143,6 +143,7 @@ void NodeManager::getPath(Node _goal) {
 	delete root;
 	root = new vector<Point>;
 
+	//親を遡って経路取得
 	while (_goal.parent != nullptr) {
 		Point _tmp;
 		_tmp.x = _goal.x;
@@ -235,7 +236,7 @@ void NodeManager::draw() {
 	DrawFormatString(100, 80, GetColor(255, 255, 255), "距離：%.1f x:%.0f y:%.0f", player.distance(goal), player.x, player.y);
 }
 
-//リスト中のノードのステータスとコストを初期化して全てpopする
+//リスト中のノードを初期状態に戻してポップする
 void NodeManager::clearList() {
 	Node *tmp;
 	while (!openList.empty()) {

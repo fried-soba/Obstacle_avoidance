@@ -7,7 +7,7 @@ void Mover::stop() {
 	vx = vy = 0;
 }
 Player::Player() {
-	radius = 20;
+	radius = 10;
 	speed = 1;
 	/*
 	ランダム出現
@@ -86,7 +86,7 @@ float Player::distance(Goal goal) {
 
 
 Human::Human() {
-	radius = 20;
+	radius = 10;
 	speed = 1+(float)GetRand(400)/100;	//速度を1～5の範囲でランダム化
 	/*
 	ランダム出現

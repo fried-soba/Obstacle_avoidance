@@ -61,22 +61,27 @@ void TopScene::draw() {
 }
 
 void TopScene::writeOpenList() {
+	priority_queue<Node*, vector<Node*>, NodeCompare> tmp = nodeMgr.openList;
+
 	if (!nodeMgr.openList.empty()) {
 		printfDx("ノード数は%d個です\n", nodeMgr.openList.size());
-		if (!nodeMgr.openList.empty()) {
-			FILE* outputfile = fopen("PopResult.txt", "w");
-			if (outputfile == NULL) {
-				printfDx("ファイルが使用中です。\n");
-				exit(1);
-			}
-			fprintf(outputfile, "ゴール座標は(%4d,%4d)\n", nodeMgr.goal.x, nodeMgr.goal.y);
-			fprintf(outputfile, "コストの昇順でオープンリストをpushします\n");
-			fprintf(outputfile, "%d個のノードがあります。\n", nodeMgr.openList.size());
-			while (!nodeMgr.openList.empty()) {
-				fprintf(outputfile, "(%3d,%3d)のコストは%fです\n", nodeMgr.openList.top()->x, nodeMgr.openList.top()->y, nodeMgr.openList.top()->score);
-				nodeMgr.openList.pop();
-			}
-			fclose(outputfile);
+		FILE* outputfile = fopen("PopResult.txt", "w");
+		if (outputfile == NULL) {
+			printfDx("ファイルが使用中です。\n");
+			exit(1);
 		}
-	}
+		fprintf(outputfile, "ゴール座標は(%4d,%4d)\n", nodeMgr.goal.x, nodeMgr.goal.y);
+		fprintf(outputfile, "コストの昇順でオープンリストをpushします\n");
+		fprintf(outputfile, "%d個のノードがあります。\n", nodeMgr.openList.size());
+		while (!nodeMgr.openList.empty()) {
+			fprintf(outputfile, "(%3d,%3d)のコストは%fです\n", nodeMgr.openList.top()->x, nodeMgr.openList.top()->y, nodeMgr.openList.top()->score);
+			DrawBox(nodeMgr.openList.top()->x, nodeMgr.openList.top()->y, nodeMgr.openList.top()->x + 1,
+				nodeMgr.openList.top()->y + 1, GetColor(0, 0, 255), TRUE);	//オープンリスト内のノードを青色で表示させる
+			nodeMgr.openList.pop();
+		}
+		fclose(outputfile);
+		nodeMgr.openList = tmp;
+	}	
+	else
+		printfDx("opneListは空です\n");
 }
