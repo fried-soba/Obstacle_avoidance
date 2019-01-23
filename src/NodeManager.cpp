@@ -80,8 +80,7 @@ eResult NodeManager::search() {
 
 		//親ノードをオープンリストからpop
 		openList.top()->status = Close;
-		closeList.push(openList.top());
-		openList.pop();
+		closeList.push(openList.pop());
 
 		//周辺の8つを子ノードとしてオープンリストに入れる
 		for (int diff_row = -1; diff_row <= 1; diff_row++) {
@@ -111,10 +110,8 @@ eResult NodeManager::search() {
 							child->score = ng;
 							child->parent = center;
 
-							//コストが変更されたので再挿入による再ソート
-							//openList.pop();
-							openList.push(child);
-							//既にオープンだが重複登録を許すことで整列性を保つ
+							//コストが変更されたので再ソート
+							openList.sortList();
 						}
 						break;
 					case Close:

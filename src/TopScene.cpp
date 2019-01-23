@@ -61,7 +61,7 @@ void TopScene::draw() {
 }
 
 void TopScene::writeOpenList() {
-	priority_queue<Node*, vector<Node*>, NodeCompare> tmp = nodeMgr.openList;
+	NodeList tmp = nodeMgr.openList;
 
 	if (!nodeMgr.openList.empty()) {
 		printfDx("ƒm[ƒh”‚Í%dŒÂ‚Å‚·\n", nodeMgr.openList.size());

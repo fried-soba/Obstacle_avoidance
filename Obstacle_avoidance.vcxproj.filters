@@ -37,6 +37,9 @@
     <ClCompile Include="src\NodeManager.cpp">
       <Filter>NodeManager</Filter>
     </ClCompile>
+    <ClCompile Include="src\AscendingNodeQueue.cpp">
+      <Filter>AscendingNodeQueue</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Looper.h" />
@@ -86,6 +89,9 @@
     <ClInclude Include="src\NodeManager.h">
       <Filter>NodeManager</Filter>
     </ClInclude>
+    <ClInclude Include="src\AscendingNodeQueue.h">
+      <Filter>AscendingNodeQueue</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Node">
@@ -111,6 +117,9 @@
     </Filter>
     <Filter Include="NodeManager">
       <UniqueIdentifier>{3f7e131c-ccd9-4e6d-b30c-cab2df807420}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="AscendingNodeQueue">
+      <UniqueIdentifier>{a34e1362-f89d-40a3-a68c-6889e8e53652}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

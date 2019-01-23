@@ -33,13 +33,6 @@ public:
 	void calcScore();		//合計スコアを計算
 };
 
-//オープンリストの優先度付きキューに用いるソート基準
-struct NodeCompare {
-	bool operator()(const Node* a, const Node* b) const {
-		return a->score > b->score;
-	}
-};
-
 class SquareBlock {
 public:
 	int x, x_end;
