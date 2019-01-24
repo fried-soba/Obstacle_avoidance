@@ -21,6 +21,7 @@ Player::Player() {
 	vy = (float)speed * sinf(angle);
 	color = GetColor(255, 255, 255);
 	hitStatus = false;
+	status = unReach;
 
 	//moveAmount = new vector<Point>;
 }
@@ -37,10 +38,10 @@ void Player::update(Goal *goal) {
 	//停止済みのときは更新しない
 	if (hitStatus)
 		return;
-	checkGoal(goal->x, goal->y);
+	
 
-	static int cnt = 0;
-	if (flameCnt == 0)
+	static unsigned int cnt = 0;
+	if (flameCnt == 0 && status == unReach)
 		cnt = 0;
 	if (!moveAmount->empty() && cnt < moveAmount->size()) {
 		{
@@ -49,6 +50,7 @@ void Player::update(Goal *goal) {
 			cnt++;
 		}
 	}
+	checkGoal(goal->x, goal->y);
 }
 
 void Player::draw() {
@@ -70,7 +72,7 @@ bool Player::checkHit(float human_x, float human_y) {
 //ゴール判定:座標が重なったらゴール
 void Player::checkGoal(int goal_x, int goal_y)
 {
-	if (abs(goal_x - (int)x) == 0 && abs(goal_y - (int)y) == 0) {
+	if (abs(goal_x - (int)x) == 0 && abs(goal_y - (int)y) == 0) {		//何故か時々座標を突き抜ける
 		stop();
 		hitStatus = true;
 		color = GetColor(0, 255, 255);
@@ -79,9 +81,7 @@ void Player::checkGoal(int goal_x, int goal_y)
 
 //playerからゴールまでの距離算出
 float Player::distance(Goal goal) {
-	float distance;
-	distance = sqrtf(powf(x - (float)goal.x, 2.0) + powf(y - (float)goal.y, 2.0));
-	return distance;
+	return sqrtf(powf(x - (float)goal.x, 2.0) + powf(y - (float)goal.y, 2.0));
 }
 
 
@@ -119,7 +119,13 @@ void Human::update() {
 	y += vy;
 }
 void Human::draw() {
-	DrawCircle((int)x, (int)y, radius, color, 1);
+	DrawCircle((int)x, (int)y, radius, color, TRUE);
+	/*
+	//int x2 = x + 30 * cosf(angle - Define::PI);
+	int x2 = x + vx * 10;
+	int y2 = y + vy * 10;
+	DrawLine((int)x, (int)y, x2, y2, color);
+	*/
 }
 
 Goal::Goal() {

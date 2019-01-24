@@ -19,7 +19,7 @@ void Node::calc_hCost(Goal goal) {
 }
 
 void Node::calcScore(){
-	score = (g + h /* + i_Cost */);	//影響度計算が実装したら合計コストに含める
+	score = (g + h  + i_Cost );	//影響度計算が実装したら合計コストに含める
 }
 
 SquareBlock::SquareBlock() {

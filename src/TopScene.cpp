@@ -3,7 +3,7 @@
 #include "GameScene.h"
 #include <time.h>
 
-//txtへの書き出し用	//最終的には不要にする
+//メモリdump用
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -44,11 +44,13 @@ void TopScene::update()
 	nodeMgr.update();
 
 	//オープンリスト中のノードをtxtファイルへ書き出し
-	if (CheckHitKey(KEY_INPUT_W)) {
-		writeOpenList();
+	if (CheckHitKey(KEY_INPUT_D)) {
+		dumpOpenList();
 	}
 
+	//Rキーでリセット
 	if (CheckHitKey(KEY_INPUT_R)) {
+		searchingResult = unReach;
 		nodeMgr.player.reset();
 		for (int cnt = 0; cnt < HUMAN; cnt++) {
 			nodeMgr.human[cnt].reset();
@@ -60,7 +62,7 @@ void TopScene::draw() {
 	nodeMgr.draw();	
 }
 
-void TopScene::writeOpenList() {
+void TopScene::dumpOpenList() {
 	NodeList tmp = nodeMgr.openList;
 
 	if (!nodeMgr.openList.empty()) {

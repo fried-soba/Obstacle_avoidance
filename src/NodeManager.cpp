@@ -56,19 +56,22 @@ float NodeManager::moveCost(int x_diff, int y_diff) {
 }
 
 eResult NodeManager::search() {
-	float ng;												//子ノードの合計コスト候補
+	float ns;												//子ノードの合計コスト候補
 	int loop_cnt = 0;										//探索のループ回数
-	int limit = 40 * 40;									//ループ回数の上限（要調整）
-	int child_x, child_y;
-	Node* center = &grid[(int)player.y][(int)player.x];		//探索開始時点の親ノード
-	clearList();
-	openList.push(center);
+	int limit = (int)(FREQUENCY * FREQUENCY*Define::PI);			//ループ回数の上限:探索周期に比例させて算出ルートが短くならないようにする
+	int child_x, child_y;									//子ノードの座標
+	Node* center;											//探索時の親ノード
+
+	clearList();											//前回探索時のノードに関わる状態を全てクリア
+	Node* start = &grid[(int)player.y][(int)player.x];		//探索開始時点ではスタートノード
+	openList.push(start);
 
 	while (!openList.empty()) {
 		//オープンリストtopにゴール座標が来る場合は成功
 		if (openList.top()->x == goal.x && openList.top()->y == goal.y) {
 			printfDx("探索が完了しました\n");
 			getPath(*openList.top());
+			player.status = arrival;
 			return arrival;
 		}
 		//探索回数が上限に達したら結果を保存して中断
@@ -77,6 +80,8 @@ eResult NodeManager::search() {
 			//clearList();
 			return unReach;
 		}
+
+		center = openList.top();	//探索時の中心ノード
 
 		//親ノードをオープンリストからpop
 		openList.top()->status = Close;
@@ -90,24 +95,25 @@ eResult NodeManager::search() {
 				//中央ノードは処理から除外する
 				if (!(diff_row == 0 && diff_column == 0) && child_x < Define::WIN_W && child_y < Define::WIN_H) {
 					//子ノードの座標
-
 					Node* child = &grid[center->y + diff_column][center->x + diff_row];
-					//子ノードの合計コスト候補の計算
-					ng = (center->score - center->h) + child->h + moveCost(diff_row, diff_column);
-
+					//親ノードの実コストの確定
+					center->g = center->score - center->h;
 					//InfluenceMapによる追加コストを計算
-					ng += calcIM_cost(child);
+					child->i_Cost = calcIM_cost(child);
+
+					//子ノードの合計コストの計算
+					ns = center->g + moveCost(diff_row, diff_column) + child->h + child->i_Cost;
 
 					switch (child->status) {
 					case None:
 						child->status = Open;
-						openList.push(child);
 						child->parent = center;
-						child->score = ng;
+						child->score = ns;
+						openList.push(child);
 						break;
 					case Open:
-						if (ng < child->score) {
-							child->score = ng;
+						if (ns < child->score) {
+							child->score = ns;
 							child->parent = center;
 
 							//コストが変更されたので再ソート
@@ -115,8 +121,8 @@ eResult NodeManager::search() {
 						}
 						break;
 					case Close:
-						if (ng < child->score) {
-							child->score = ng;
+						if (ns < child->score) {
+							child->score = ns;
 							child->parent = center;
 
 							//オープンリストに戻す
@@ -152,18 +158,18 @@ void NodeManager::getPath(Node _goal) {
 	
 	//順序が逆順に入ったままなの戻す
 	Point _tmp;
-	for (int cnt = 0; cnt < root->size() / 2; cnt++) {
+	for (unsigned int cnt = 0; cnt < root->size() / 2; cnt++) {
 		_tmp = (*root)[cnt];
 		(*root)[cnt] = (*root)[root->size() - cnt - 1];
 		(*root)[(*root).size() - cnt - 1] = _tmp;
 	}
 
-	//前回探索分のルートを表示されつづける問題解消のためにクリアしてから記録する
+	//前回探索分のルートをメモリごと破棄し直してから記録する
 	delete player.moveAmount;
 	player.moveAmount = new vector<Point>;
 	//子ノードへ移る移動量を親に記録する
 	if ((*root).size() > 2) {
-		for (int cnt = 0; cnt < root->size() - 2; cnt++) {
+		for (unsigned int cnt = 0; cnt < root->size() - 2; cnt++) {
 			_tmp.x = (*root)[cnt + 1].x - (*root)[cnt].x;
 			_tmp.y = (*root)[cnt + 1].y - (*root)[cnt].y;
 			(*player.moveAmount).push_back(_tmp);
@@ -176,24 +182,25 @@ void NodeManager::getPath(Node _goal) {
 float NodeManager::calcIM_cost(Node* node) {
 	//円形領域と三角形領域の危険度
 	float Dci = 0, Dtr = 0;
-	const float Ctr2 = tanf(20);	//三角形領域の角度を決める定数
+	const float Ctr2 = tanf(20 * Define::PI / 180);	//三角形領域の角度を決める定数 引数はラジアン表記
 
 	for (int cnt = 0; cnt < HUMAN; cnt++) {
 		//人と自機の相対距離の軸成分の距離
-		static float dx, dy;
+		static double dx, dy;
 		dx = human[cnt].x - node->x;
 		dy = human[cnt].y - node->y;
 		//円形領域のコスト
 		Dci += Imax * max(0.0, 1 - (pow(dx, 2.0) + pow(dy, 2.0))
 			/ (pow((player.radius + human[cnt].radius), 2.0) + pow(Cci, 2.0)));
 		//三角形領域のコスト
-		static float m = 0.0, s = 0.0;
-		static float vx2vy2 = powf(human[cnt].vx, 2.0) + powf(human[cnt].vy, 2.0);
+		static double m = 0.0;	//速度ベクトルに沿う成分
+		static double s = 0.0;	//速度ベクトルに直行する成分
+		static double vx2vy2 = powf(human[cnt].vx, 2.0) + powf(human[cnt].vy, 2.0);
 		m = (human[cnt].vx*dx + human[cnt].vy*dy) / vx2vy2;
 		s = (-human[cnt].vy*dx + human[cnt].vx*dy) / vx2vy2;
-		Dtr += Imax * max(0, 1 - m / Dtr)*max(0, 1 - abs(s) / m * Ctr2);
+		Dtr += Imax * max(0, 1 - m / Ctr)*max(0, 1 - abs(s) / m * Ctr2);
 	}
-
+	printfDx("Dci = %.1f ,Dtr = %.1f\n", Dci, Dtr);		//IM計算コストをダンプ
 	return (float)IMw*max(Dci, Dtr);
 }
 
@@ -237,6 +244,7 @@ void NodeManager::draw() {
 void NodeManager::clearList() {
 	Node *tmp;
 	while (!openList.empty()) {
+		DrawBox(openList.top()->x, openList.top()->y, openList.top()->x + 1, openList.top()->y + 1, GetColor(0, 0, 255), TRUE);	//pop時にリスト中のノードを描画
 		tmp = openList.top();
 		tmp->score = tmp->g = tmp->i_Cost = 0;
 		tmp->status = None;

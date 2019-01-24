@@ -1,14 +1,20 @@
 #pragma once
 
-#define HUMAN 3			//画面内を動く人間の数
+#define HUMAN 1			//画面内を動く人間の数
 #define BLOCKS 0     	//適当に配置する静的障害物の数
-#define FREQUENCY 60	//探索のフレーム頻度
+#define FREQUENCY 30	//探索のフレーム頻度
 
 //InfluenceMapの計算式に用いる定数
 #define Imax 50
 #define Cci 3
 #define Ctr 90			//人の進行方向の危険度の減衰を司る定数
 #define IMw 0.003		//算出したIMコストの重み付け
+
+enum eResult {
+	unReach,
+	notFound,
+	arrival
+};
 
 class Define final {
 public:

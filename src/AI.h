@@ -1,5 +1,6 @@
 #pragma once
-#include<vector>
+#include <vector>
+#include "Define.h"
 
 using namespace std;
 
@@ -28,7 +29,7 @@ public:
 		red, green, blue;
 	unsigned int color;
 	float x, y;		//中心座標
-	float angle;	//方位角：進行方向の角度(ラジアン表記)
+	float angle;	//方位角：進行方向の角度(ラジアン表記)　x軸の正方向から反時計回りに加算される
 	float speed, vx, vy;	//移動速度
 	void stop();
 };
@@ -49,6 +50,7 @@ public:
 
 	bool hitStatus;
 	int flameCnt;
+	eResult status;
 	vector<Point>* moveAmount;						//探索したルートの次ノードへの移動量を保持する配列
 };
 

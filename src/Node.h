@@ -10,12 +10,6 @@ enum eStatus {
 	Block
 };
 
-enum eResult {
-	unReach,
-	notFound,
-	arrival
-};
-
 //各Grid(=長さ1の正方形のノード)のステータス
 class Node {
 public:

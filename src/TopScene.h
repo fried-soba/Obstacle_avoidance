@@ -13,7 +13,7 @@ public:
     virtual ~TopScene() = default;
     void update() override;
     void draw();
-	void writeOpenList();
+	void dumpOpenList();
 	int flame_cnt;
 	eResult searchingResult;
 	NodeManager nodeMgr;
