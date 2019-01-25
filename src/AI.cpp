@@ -33,6 +33,7 @@ void Player::reset(){
 	vy = speed * sinf(angle);
 	color = GetColor(255, 255, 255);
 	hitStatus = false;
+	status = unReach;
 }
 void Player::update(Goal *goal) {
 	//’â~Ï‚İ‚Ì‚Æ‚«‚ÍXV‚µ‚È‚¢

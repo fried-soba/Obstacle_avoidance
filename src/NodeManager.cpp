@@ -182,7 +182,7 @@ void NodeManager::getPath(Node _goal) {
 float NodeManager::calcIM_cost(Node* node) {
 	//円形領域と三角形領域の危険度
 	float Dci = 0, Dtr = 0;
-	const float Ctr2 = tanf(20 * Define::PI / 180);	//三角形領域の角度を決める定数 引数はラジアン表記
+	const float Ctr2 = tanf(45 * Define::PI / 180);	//三角形領域の角度を決める定数 引数はラジアン表記
 
 	for (int cnt = 0; cnt < HUMAN; cnt++) {
 		//人と自機の相対距離の軸成分の距離
@@ -196,7 +196,7 @@ float NodeManager::calcIM_cost(Node* node) {
 		static double m = 0.0;	//速度ベクトルに沿う成分
 		static double s = 0.0;	//速度ベクトルに直行する成分
 		static double vx2vy2 = powf(human[cnt].vx, 2.0) + powf(human[cnt].vy, 2.0);
-		m = (human[cnt].vx*dx + human[cnt].vy*dy) / vx2vy2;
+		m  = (human[cnt].vx*dx + human[cnt].vy*dy) / vx2vy2;
 		s = (-human[cnt].vy*dx + human[cnt].vx*dy) / vx2vy2;
 		Dtr += Imax * max(0, 1 - m / Ctr)*max(0, 1 - abs(s) / m * Ctr2);
 	}
@@ -244,7 +244,7 @@ void NodeManager::draw() {
 void NodeManager::clearList() {
 	Node *tmp;
 	while (!openList.empty()) {
-		DrawBox(openList.top()->x, openList.top()->y, openList.top()->x + 1, openList.top()->y + 1, GetColor(0, 0, 255), TRUE);	//pop時にリスト中のノードを描画
+		DrawBox(openList.top()->x, openList.top()->y, openList.top()->x + 1, openList.top()->y + 1, GetColor(100, 100, 255), TRUE);	//pop時にリスト中のノードを描画
 		tmp = openList.top();
 		tmp->score = tmp->g = tmp->i_Cost = 0;
 		tmp->status = None;

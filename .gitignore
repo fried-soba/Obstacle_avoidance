@@ -3,4 +3,5 @@ Debug/
 Release/
 *.user
 *.suo
-PopResult.txt
+PopResult*.txt
+*.vcxproj
