@@ -88,7 +88,7 @@ float Player::distance(Goal goal) {
 
 Human::Human() {
 	radius = 10;
-	speed = 1+(float)GetRand(400)/100;	//速度を1～5の範囲でランダム化
+	speed = 0.5+(float)GetRand(250)/100;	//速度を1～5の範囲でランダム化
 	/*
 	ランダム出現
 	x = (float)radius + GetRand(Define::WIN_W - 2 * radius);
