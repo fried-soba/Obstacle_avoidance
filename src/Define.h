@@ -1,7 +1,7 @@
 #pragma once
 
 #define HUMAN 3			//画面内を動く人間の数
-#define BLOCKS 0     	//適当に配置する静的障害物の数
+#define BLOCKS 2     	//適当に配置する静的障害物の数
 #define FREQUENCY 30	//探索のフレーム頻度
 
 //InfluenceMapの計算式に用いる定数

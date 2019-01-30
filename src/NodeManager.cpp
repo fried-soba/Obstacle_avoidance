@@ -20,7 +20,7 @@ NodeManager::NodeManager() {
 		}
 	}
 
-	//画面端の座標は最初からクローズにしておく
+	//画面端の座標は最初から不可侵のBlockにしておく
 	//横方向
 	for (int hoge = 0; hoge < Define::WIN_W; hoge++) {
 		//横方向
@@ -33,10 +33,16 @@ NodeManager::NodeManager() {
 		grid[fuga][Define::WIN_W - 1].status = Block;
 	}
 
-	//ブロック内の全てのノードのステータスを進入不可にする
+	//ブロック内の全てと周辺のノードのステータスを進入不可にする
 	for (int cnt = 0; cnt < BLOCKS; cnt++) {
-		for (int column = block[cnt].y; column < block[cnt].y_end; column++) {
-			for (int row = block[cnt].x; row < block[cnt].x_end; row++)
+		int column, column_end;
+		(block[cnt].y - player.radius < 0) ? column = 0 : column = block[cnt].y - player.radius;
+		(block[cnt].y_end + player.radius > Define::WIN_H) ? column_end = Define::WIN_H : column_end = block[cnt].y_end;
+		for (column; column < column_end; column++) {
+			int row, row_end;
+			(block[cnt].x - player.radius < 0) ? row = 0 : row = block[cnt].x;
+			(block[cnt].x_end + player.radius > Define::WIN_W) ? row_end = Define::WIN_H : row_end = block[cnt].x_end;
+			for (row; row < row_end; row++)
 				grid[column][row].status = Block;
 		}
 	}
@@ -187,8 +193,8 @@ float NodeManager::calcIM_cost(Node* node) {
 	for (int cnt = 0; cnt < HUMAN; cnt++) {
 		//人と自機の相対距離の軸成分の距離
 		static double dx, dy;
-		dx = human[cnt].x - node->x;
-		dy = human[cnt].y - node->y;
+		dx = node->x - human[cnt].x;
+		dy = node->y - human[cnt].y;
 		//円形領域のコスト
 		Dci += Imax * max(0.0, 1 - (pow(dx, 2.0) + pow(dy, 2.0))
 			/ (pow((player.radius + human[cnt].radius), 2.0) + pow(Cci, 2.0)));
