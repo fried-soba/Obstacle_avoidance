@@ -23,6 +23,7 @@ void Node::calcScore(){
 }
 
 SquareBlock::SquareBlock() {
+	/*
 	x = Define::WIN_W * 1 / 5 + GetRand(Define::WIN_W * 2 / 5);		//スタート-ゴール間のどこか
 	y = 100 + GetRand(Define::WIN_H - 200);							//上端100は空くようにする
 	thickness = GetRand(200);
@@ -44,6 +45,9 @@ SquareBlock::SquareBlock() {
 		y_end = Define::WIN_H - 1;
 		//printfDx("ブロックがy軸をはみ出したので修正したよ\n");
 	}
+	*/
+	x = 350; x_end = 500;
+	y = 200; y_end = 350;
 	color = GetColor(GetRand(255), GetRand(255), GetRand(255));
 }
 

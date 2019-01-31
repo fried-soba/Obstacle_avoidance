@@ -1,7 +1,6 @@
 #include <stdlib.h>
 #include <math.h>
 #include <DxLib.h>
-#include "Define.h"
 #include "AI.h"
 void Mover::stop() {
 	vx = vy = 0;
@@ -16,21 +15,23 @@ Player::Player() {
 	*/
  	x = (float)GetRand(Define::WIN_W / 5);
 	y = (float)GetRand(Define::WIN_H);
-	angle = (float)(330 + GetRand(30))*Define::PI / 180;
-	vx = (float)speed * cosf(angle);
-	vy = (float)speed * sinf(angle);
 	color = GetColor(255, 255, 255);
 	hitStatus = false;
 	status = unReach;
 
-	//moveAmount = new vector<Point>;
+	//自動化の為の出現位置固定
+	x = (float)100;
+	y = (float)100;
 }
 void Player::reset(){
-	x = (float)GetRand(Define::WIN_W / 5);
-	y = (float)GetRand(Define::WIN_H);
-	angle = (float)(330 + GetRand(30))*Define::PI / 180;
-	vx = speed * cosf(angle);
-	vy = speed * sinf(angle);
+	//元々の一部制限出現範囲
+	//x = (float)GetRand(Define::WIN_W / 5);
+	//y = (float)GetRand(Define::WIN_H);
+
+	//自動化の為の出現位置固定
+	x = (float)100;
+	y = (float)100;
+
 	color = GetColor(255, 255, 255);
 	hitStatus = false;
 	status = unReach;
@@ -88,7 +89,9 @@ float Player::distance(Goal goal) {
 
 Human::Human() {
 	radius = 10;
-	speed = 0.5+(float)GetRand(250)/100;	//速度を1～5の範囲でランダム化
+	speed = 0.5+(float)GetRand(150)/100;	//速度を1～5の範囲でランダム化
+	
+
 	/*
 	ランダム出現
 	x = (float)radius + GetRand(Define::WIN_W - 2 * radius);
@@ -105,6 +108,9 @@ void Human::reset() {
 	vx = speed * cosf(angle);
 	vy = speed * sinf(angle);
 	color = GetColor(GetRand(255), GetRand(255), GetRand(255));
+
+	//自動化用のスピード再設定
+	speed = 0.5 + (float)GetRand(150) / 100;
 }
 
 void Human::update() {
@@ -121,7 +127,7 @@ void Human::update() {
 }
 void Human::draw() {
 	DrawCircle((int)x, (int)y, radius, color, TRUE);
-	/*
+	/* 進行ベクトルを追加表示
 	//int x2 = x + 30 * cosf(angle - Define::PI);
 	int x2 = x + vx * 10;
 	int y2 = y + vy * 10;
@@ -131,8 +137,13 @@ void Human::draw() {
 
 Goal::Goal() {
 	size = Define::GRID_SIZE;
-	x = Define::WIN_W * 4 / 5+GetRand(Define::WIN_W * 1 / 5);
-	y = GetRand(Define::WIN_H);
+
+	//x = Define::WIN_W * 4 / 5+GetRand(Define::WIN_W * 1 / 5);
+	//y = GetRand(Define::WIN_H);
+
+	//自動化の為の出現位置固定
+	x = (float)700;
+	y = (float)500;
 }
 
 void Goal::draw() {

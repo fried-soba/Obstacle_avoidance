@@ -64,12 +64,10 @@ void TopScene::update()
 	//衝突orゴールでリセット
 	if (searchingResult==arrival || nodeMgr.player.hitStatus) {
 		(searchingResult == arrival) ? success++ : failed++;
+		printfDx("%d回目が終了しました\n", success + failed);
 		searchingResult = unReach;
 		nodeMgr.player.reset();
-		for (int cnt = 0; cnt < HUMAN; cnt++) {
-			nodeMgr.human[cnt].reset();
-		}
-		if (success + failed >= 3)
+		if (success + failed == TRIAL)
 			summurize();
 	}
 
@@ -106,13 +104,14 @@ void TopScene::dumpOpenList() {
 }
 
 void TopScene::summurize() {
-	FILE* printsum = fopen("試行結果.txt", "w");
+	FILE* printsum = fopen("試行結果.txt", "a");
 	if (printsum == NULL) {
 		printfDx("ファイルが使用中です。\n");
 		exit(1);
 	}
 	float rate = (float)success / (float)((success + failed)) * 100;
-	fprintf(printsum, "ゴール:%d回　衝突%d回　ゴール率:%3.1f\%\n", success, failed ,rate);
+	fprintf(printsum, "移動障害物の数：%d：ゴール:%d回　衝突%d回　ゴール率:%3.1f％\n", HUMAN, success, failed ,rate);
 	printfDx("結果の出力が完了しました\n");
 	fclose(printsum);
+	//success = failed = 0;
 }

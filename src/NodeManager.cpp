@@ -208,9 +208,9 @@ float NodeManager::calcIM_cost(Node* node) {
 			Dtr = 0;
 			break;
 		}
-		Dtr += Imax * max(0, 1 - m / Ctr)*max(0, 1 - abs(s) / m * Ctr2);
+		Dtr += Imax * max(0, 1 - m / Ctr1)*max(0, 1 - abs(s) / m * Ctr2);
 	}
-	printfDx("Dci= %4.1f ,Dtr= %4.1f ,score= %4.1f\n", Dci, Dtr,node->score);		//IM計算コストをダンプ
+	//printfDx("Dci= %4.1f ,Dtr= %4.1f ,score= %4.1f\n", Dci, Dtr,node->score);		//IM計算コストをダンプ
 	return (float)IMw*max(Dci, Dtr);
 }
 
@@ -226,7 +226,9 @@ void NodeManager::update() {
 		human[cnt].update();
 		if (player.checkHit(human[cnt].x, human[cnt].y)) {
 			player.stop();
-			human[cnt].stop();
+			//自動化の際して止めないようにする
+			//human[cnt].stop();
+			printfDx("衝突しました\n");
 		}
 	}
 }

@@ -1,15 +1,17 @@
 #pragma once
 
-#define HUMAN 1			//画面内を動く人間の数
-#define BLOCKS 0     	//適当に配置する静的障害物の数
+#define HUMAN 4			//画面内を動く人間の数
+#define BLOCKS 1     	//適当に配置する静的障害物の数
 #define FREQUENCY 30	//探索のフレーム頻度
 
 //InfluenceMapの計算式に用いる定数
 #define Imax 50			//算出したIMコストの重み付け
 #define Cci 100			//
-#define Ctr 300			//人の進行方向の危険度の減衰を司る定数
-#define ANGLE 45		//三角形領域の角度
+#define Ctr1 90			//人の進行方向の危険度の減衰を司る定数
+#define ANGLE 30		//三角形領域の角度 Ctr2のdegree表示
 #define IMw 0.03		//算出したIMコスト全体の重み付け
+
+#define TRIAL 50			//自動化の際の探索回数
 
 enum eResult {
 	unReach,
