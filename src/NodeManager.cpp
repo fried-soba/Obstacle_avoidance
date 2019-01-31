@@ -53,6 +53,7 @@ NodeManager::NodeManager() {
 	//ルートの格納する配列を動的確保
 	root = new vector<Point>;
 	player.moveAmount = new vector<Point>;
+
 }
 
 //隣接ノードの移動コスト
@@ -64,7 +65,7 @@ float NodeManager::moveCost(int x_diff, int y_diff) {
 eResult NodeManager::search() {
 	float ns;												//子ノードの合計コスト候補
 	int loop_cnt = 0;										//探索のループ回数
-	int limit = (int)(FREQUENCY * FREQUENCY*Define::PI);			//ループ回数の上限:探索周期に比例させて算出ルートが短くならないようにする
+	int limit = (int)(FREQUENCY * FREQUENCY*Define::PI);	//ループ回数の上限:探索周期に比例させて算出ルートが短くならないようにする
 	int child_x, child_y;									//子ノードの座標
 	Node* center;											//探索時の親ノード
 
@@ -83,7 +84,6 @@ eResult NodeManager::search() {
 		//探索回数が上限に達したら結果を保存して中断
 		if (loop_cnt > limit) {
 			getPath(*openList.top());
-			//clearList();
 			return unReach;
 		}
 

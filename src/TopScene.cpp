@@ -13,6 +13,10 @@ TopScene::TopScene(IOnSceneChangedListener* impl, const Parameter& parameter) : 
 	SRand((unsigned int)time(NULL));	//Rand()のseed値をランダム化
 	flame_cnt = 0;
 	searchingResult = unReach;
+	
+	//回数蓄積用
+	success = 0;
+	failed = 0;
 }
 
 void TopScene::update()
@@ -56,6 +60,19 @@ void TopScene::update()
 			nodeMgr.human[cnt].reset();
 		}
 	}
+
+	//衝突orゴールでリセット
+	if (searchingResult==arrival || nodeMgr.player.hitStatus) {
+		(searchingResult == arrival) ? success++ : failed++;
+		searchingResult = unReach;
+		nodeMgr.player.reset();
+		for (int cnt = 0; cnt < HUMAN; cnt++) {
+			nodeMgr.human[cnt].reset();
+		}
+		if (success + failed >= 3)
+			summurize();
+	}
+
 }
 
 void TopScene::draw() {
@@ -86,4 +103,16 @@ void TopScene::dumpOpenList() {
 	}	
 	else
 		printfDx("opneListは空です\n");
+}
+
+void TopScene::summurize() {
+	FILE* printsum = fopen("試行結果.txt", "w");
+	if (printsum == NULL) {
+		printfDx("ファイルが使用中です。\n");
+		exit(1);
+	}
+	float rate = (float)success / (float)((success + failed)) * 100;
+	fprintf(printsum, "ゴール:%d回　衝突%d回　ゴール率:%3.1f\%\n", success, failed ,rate);
+	printfDx("結果の出力が完了しました\n");
+	fclose(printsum);
 }

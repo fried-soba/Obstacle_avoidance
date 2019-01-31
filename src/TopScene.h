@@ -14,6 +14,12 @@ public:
     void update() override;
     void draw();
 	void dumpOpenList();
+	
+	//‰ñ”’~Ï—p
+	int success;
+	int failed;
+	void summurize();
+	
 	int flame_cnt;
 	eResult searchingResult;
 	NodeManager nodeMgr;

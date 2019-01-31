@@ -21,7 +21,7 @@ public:
 	NodeList openList, closeList;												//優先度付きキューで利用する機能に加えて任意タイミングでのソート機能を加えた自作クラス
 	vector<Point> *root;														//探索経路を格納する配列
 	Node **grid = new Node*[Define::WIN_H];
-	Node* start;															//スタートノード
+	Node* start;																//スタートノード
 	Human human[HUMAN];
 	Player player;
 	Goal goal;
